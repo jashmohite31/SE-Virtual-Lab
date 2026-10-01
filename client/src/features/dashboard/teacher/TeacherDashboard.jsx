@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../shared/lib/axiosInstance.js';
 import { Card, CardBody, CardHeader } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Users, Award, Trophy, GraduationCap, ChevronRight, BarChart } from 'lucide-react';
+import { Users, Trophy, GraduationCap, ChevronRight, BarChart } from 'lucide-react';
 
 export const TeacherDashboard = () => {
   const { data: analyticsRes, isLoading } = useQuery({
@@ -13,9 +13,8 @@ export const TeacherDashboard = () => {
 
   const stats = analyticsRes?.data?.data?.stats || {
     totalStudents: 0,
-    totalExperiments: 12,
+    totalExperiments: 6,
     avgQuizScore: 0,
-    totalCertificates: 0,
     experimentCompletions: [],
     students: []
   };
@@ -40,7 +39,7 @@ export const TeacherDashboard = () => {
       </div>
 
       {/* Global Stat Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Card>
           <CardBody className="flex items-center gap-4">
             <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 rounded-xl">
@@ -61,18 +60,6 @@ export const TeacherDashboard = () => {
             <div>
               <p className="text-xs text-slate-500 font-semibold">Class Quiz Average</p>
               <h3 className="text-2xl font-bold">{stats.avgQuizScore}%</h3>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-pink-50 dark:bg-pink-950/40 text-pink-500 rounded-xl">
-              <Award size={24} />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-semibold">Certificates Issued</p>
-              <h3 className="text-2xl font-bold">{stats.totalCertificates}</h3>
             </div>
           </CardBody>
         </Card>

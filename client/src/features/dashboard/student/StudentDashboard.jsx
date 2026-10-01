@@ -2,9 +2,9 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../../../shared/lib/axiosInstance.js';
-import { Card, CardBody, CardHeader } from '../../../shared/components/ui/Card.jsx';
+import { Card, CardBody } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Beaker, Award, Trophy, CheckCircle2, ChevronRight, Play } from 'lucide-react';
+import { Beaker, Trophy, ChevronRight, Play } from 'lucide-react';
 
 export const StudentDashboard = () => {
   const { data: analyticsRes, isLoading: analyticsLoading } = useQuery({
@@ -17,22 +17,15 @@ export const StudentDashboard = () => {
     queryFn: () => axiosInstance.get('/api/progress')
   });
 
-  const { data: certRes } = useQuery({
-    queryKey: ['student-certificates'],
-    queryFn: () => axiosInstance.get('/api/certificates')
-  });
-
   const stats = analyticsRes?.data?.data?.stats || {
-    totalExperiments: 12,
+    totalExperiments: 6,
     completedActivities: 0,
     completedQuizzes: 0,
-    certificatesCount: 0,
     avgQuizScore: 0,
     overallProgressPercentage: 0
   };
 
   const progressList = progressRes?.data?.data?.progress || [];
-  const certificates = certRes?.data?.data?.certificates || [];
 
   if (analyticsLoading || progressLoading) {
     return (
@@ -60,7 +53,7 @@ export const StudentDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Card>
           <CardBody className="flex items-center gap-4">
             <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 rounded-xl">
@@ -87,18 +80,6 @@ export const StudentDashboard = () => {
 
         <Card>
           <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-pink-50 dark:bg-pink-950/40 text-pink-500 rounded-xl">
-              <Award size={24} />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-semibold">Certificates Earned</p>
-              <h3 className="text-2xl font-bold">{stats.certificatesCount}</h3>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="flex items-center gap-4">
             {/* Circular Progress Display */}
             <div className="relative h-12 w-12 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90">
@@ -118,84 +99,43 @@ export const StudentDashboard = () => {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Lab Progress Summary */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight">Active Experiments</h2>
-            <Link to="/experiments" className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:underline flex items-center gap-1">
-              View All <ChevronRight size={16} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {progressList.slice(0, 4).map((prog) => (
-              <Card key={prog._id} className="hover:shadow-md transition-shadow">
-                <CardBody className="space-y-4 flex flex-col justify-between h-full">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant={prog.activityCompleted && prog.quizCompleted ? 'success' : 'warning'}>
-                        {prog.activityCompleted && prog.quizCompleted ? 'Completed' : 'In Progress'}
-                      </Badge>
-                      {prog.quizCompleted && (
-                        <span className="text-xs text-slate-500 font-semibold">Quiz: {prog.maxQuizScore}%</span>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-slate-800 dark:text-slate-200">{prog.experiment?.title}</h3>
-                  </div>
-                  <Link
-                    to={`/experiments/${prog.experiment?.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs text-indigo-650 hover:text-indigo-750 font-semibold hover:underline mt-2 self-start"
-                  >
-                    Resume Activity <Play size={12} />
-                  </Link>
-                </CardBody>
-              </Card>
-            ))}
-            {progressList.length === 0 && (
-              <div className="col-span-2 py-12 text-center text-slate-500 border border-dashed rounded-xl">
-                You haven't started any experiments yet. Go to the Experiments tab to launch one!
-              </div>
-            )}
-          </div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold tracking-tight">Active Experiments</h2>
+          <Link to="/experiments" className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:underline flex items-center gap-1">
+            View All <ChevronRight size={16} />
+          </Link>
         </div>
 
-        {/* Certificates Unlocked Sidebar */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold tracking-tight">Certificates</h2>
-          <Card>
-            <CardHeader className="font-semibold text-sm">Unlocked Credentials</CardHeader>
-            <CardBody className="space-y-4">
-              {certificates.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-500">
-                  <Award className="mx-auto text-slate-300 mb-2" size={32} />
-                  Complete an activity and pass its quiz with 60% or higher to unlock certificates.
-                </div>
-              ) : (
-                certificates.map((cert) => (
-                  <div key={cert._id} className="p-3 border rounded-xl flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-500 rounded-lg">
-                        <Award size={18} />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-xs text-slate-800 dark:text-slate-200">
-                          {cert.metadataSnapshot?.experimentTitle}
-                        </h4>
-                        <p className="text-[10px] text-slate-500">{cert.serialNumber}</p>
-                      </div>
-                    </div>
-                    <Link
-                      to={`/certificates/${cert.serialNumber}`}
-                      className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
-                    >
-                      View
-                    </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {progressList.slice(0, 6).map((prog) => (
+            <Card key={prog._id} className="hover:shadow-md transition-shadow">
+              <CardBody className="space-y-4 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant={prog.activityCompleted && prog.quizCompleted ? 'success' : 'warning'}>
+                      {prog.activityCompleted && prog.quizCompleted ? 'Completed' : 'In Progress'}
+                    </Badge>
+                    {prog.quizCompleted && (
+                      <span className="text-xs text-slate-500 font-semibold">Quiz: {prog.maxQuizScore}%</span>
+                    )}
                   </div>
-                ))
-              )}
-            </CardBody>
-          </Card>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-200">{prog.experiment?.title}</h3>
+                </div>
+                <Link
+                  to={`/experiments/${prog.experiment?.slug}`}
+                  className="inline-flex items-center gap-1.5 text-xs text-indigo-650 hover:text-indigo-750 font-semibold hover:underline mt-2 self-start"
+                >
+                  Resume Activity <Play size={12} />
+                </Link>
+              </CardBody>
+            </Card>
+          ))}
+          {progressList.length === 0 && (
+            <div className="col-span-full py-12 text-center text-slate-500 border border-dashed rounded-xl">
+              You haven't started any experiments yet. Go to the Experiments tab to launch one!
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { LayoutDashboard, Beaker, Trophy, Award, Users } from 'lucide-react';
+import { LayoutDashboard, Beaker, Trophy, Users } from 'lucide-react';
 
 export const Sidebar = ({ onItemClick, isMobile = false }) => {
   const { user } = useAuth();
@@ -23,15 +23,6 @@ export const Sidebar = ({ onItemClick, isMobile = false }) => {
       icon: <Trophy size={18} />
     }
   ];
-
-  // Only show certificates page for students
-  if (user?.role === 'student') {
-    links.push({
-      to: '/certificates',
-      label: 'Certificates',
-      icon: <Award size={18} />
-    });
-  }
 
   const activeStyle = 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold';
   const inactiveStyle = 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/60';

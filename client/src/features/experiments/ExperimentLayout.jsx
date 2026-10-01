@@ -106,7 +106,6 @@ export const ExperimentLayout = () => {
     onSuccess: (res, variables) => {
       queryClient.invalidateQueries(['submission', slug]);
       queryClient.invalidateQueries(['student-progress']);
-      queryClient.invalidateQueries(['student-certificates']);
       if (variables.status === 'submitted') {
         setPopup({
           title: 'Simulation Complete',

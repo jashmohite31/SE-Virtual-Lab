@@ -107,14 +107,6 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
               <Button onClick={handleRetry} variant="secondary" className="flex items-center gap-2">
                 <RefreshCw size={14} /> Retry Quiz
               </Button>
-              {passed && certificate && (
-                <Link
-                  to={`/certificates/${certificate.serialNumber}`}
-                  className="inline-flex items-center justify-center font-medium rounded-lg px-4 py-2 text-sm bg-indigo-650 hover:bg-indigo-750 text-white gap-2"
-                >
-                  <Award size={14} /> View Certificate <ChevronRight size={14} />
-                </Link>
-              )}
             </div>
           </CardBody>
         </Card>

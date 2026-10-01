@@ -4,7 +4,7 @@ import axiosInstance from '../../../shared/lib/axiosInstance.js';
 import { Card, CardBody, CardHeader } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Shield, ShieldAlert, Trash2, Award } from 'lucide-react';
+import { Shield, ShieldAlert, Trash2 } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -18,9 +18,8 @@ export const AdminDashboard = () => {
 
   const stats = analyticsRes?.data?.data?.stats || {
     totalStudents: 0,
-    totalExperiments: 12,
+    totalExperiments: 6,
     avgQuizScore: 0,
-    totalCertificates: 0,
     students: []
   };
 
@@ -42,7 +41,7 @@ export const AdminDashboard = () => {
       {error && <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-lg">{error}</div>}
       {success && <div className="p-3 bg-green-50 text-green-750 text-xs font-semibold rounded-lg">{success}</div>}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Card>
           <CardBody className="flex items-center gap-4">
             <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 rounded-xl">
@@ -51,18 +50,6 @@ export const AdminDashboard = () => {
             <div>
               <p className="text-xs text-slate-500 font-semibold">Active Student Profiles</p>
               <h3 className="text-2xl font-bold">{stats.totalStudents}</h3>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-purple-50 dark:bg-purple-950/40 text-purple-500 rounded-xl">
-              <Award size={24} />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-semibold">Issued Certificates</p>
-              <h3 className="text-2xl font-bold">{stats.totalCertificates}</h3>
             </div>
           </CardBody>
         </Card>

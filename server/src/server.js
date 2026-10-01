@@ -36,9 +36,11 @@ const seedDatabase = async () => {
 };
 
 const startServer = async () => {
-  await connectDB();
-  await seedDatabase();
-  app.listen(env.PORT, () => {
+  const isConnected = await connectDB();
+  if (isConnected) {
+    await seedDatabase();
+  }
+  app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
   });
 };

@@ -29,7 +29,7 @@ export const LandingPage = () => {
           Master Software Engineering <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">Through Sandbox Testing</span>
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
-          An interactive laboratory hosting 12 software engineering experiments. Model architectures, schedule timelines, simulate version control, and compute complexity metrics on-the-fly.
+          An interactive laboratory hosting 6 core software engineering experiments. Model requirements, UML diagrams, test coverage, SCM version control, risk management, and project schedules on-the-fly.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Link
@@ -54,8 +54,8 @@ export const LandingPage = () => {
             <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-500 mb-4">
               <Beaker size={20} />
             </div>
-            <h3 className="text-lg font-semibold mb-2">12 Interactive Labs</h3>
-            <p className="text-sm text-slate-500">Practice process modeling, SRS formulation, Gantt scheduling, COCOMO II calculations, and Git simulations.</p>
+            <h3 className="text-lg font-semibold mb-2">6 Interactive Labs</h3>
+            <p className="text-sm text-slate-500">Practice SRS formulation, UML modeling, SQA testing, SCM Git simulation, risk management, and project scheduling.</p>
           </div>
           <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
             <div className="h-10 w-10 rounded-lg bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center text-purple-500 mb-4">
@@ -68,8 +68,8 @@ export const LandingPage = () => {
             <div className="h-10 w-10 rounded-lg bg-pink-50 dark:bg-pink-950/30 flex items-center justify-center text-pink-500 mb-4">
               <ShieldCheck size={20} />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Certified Progress</h3>
-            <p className="text-sm text-slate-500">Unlock official laboratory certificates upon scoring 60% or higher in the assessment quizes.</p>
+            <h3 className="text-lg font-semibold mb-2">Assessment & Progress</h3>
+            <p className="text-sm text-slate-500">Validate your understanding through interactive quizzes and track score achievements across all modules.</p>
           </div>
         </div>
       </section>

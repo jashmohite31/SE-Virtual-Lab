@@ -11,8 +11,6 @@ import AdminDashboard from '../features/dashboard/admin/AdminDashboard.jsx';
 import ExperimentHub from '../features/experiments/ExperimentHub.jsx';
 import ExperimentLayout from '../features/experiments/ExperimentLayout.jsx';
 import Leaderboard from '../features/leaderboard/Leaderboard.jsx';
-import Certificates from '../features/certificates/Certificates.jsx';
-import CertificateDetail from '../features/certificates/CertificateDetail.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import RoleRoute from './RoleRoute.jsx';
 import DashboardShell from '../shared/components/layout/DashboardShell.jsx';
@@ -41,8 +39,6 @@ export const AppRoutes = () => {
         <Route element={<RoleRoute allowedRoles={['student']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/certificates" element={<Certificates />} />
-            <Route path="/certificates/:serial" element={<CertificateDetail />} />
           </Route>
         </Route>
 
