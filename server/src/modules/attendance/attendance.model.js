@@ -11,7 +11,7 @@ const attendanceSessionSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  durationHours: {
+  durationMinutes: {
     type: Number,
     required: true,
   },

@@ -57,7 +57,7 @@ export const AttendanceProvider = ({ children }) => {
   useEffect(() => {
     let interval;
     if (session && record?.status === 'pending') {
-      const requiredTimeSec = session.durationHours * 3600 * 0.75;
+      const requiredTimeSec = session.durationMinutes * 60 * 0.75;
       
       interval = setInterval(() => {
         setElapsedTime(prev => {
@@ -105,7 +105,7 @@ export const AttendanceProvider = ({ children }) => {
 
   const getProgress = () => {
     if (!session) return 0;
-    const requiredTimeSec = session.durationHours * 3600 * 0.75;
+    const requiredTimeSec = session.durationMinutes * 60 * 0.75;
     if (record?.status === 'present') return 100;
     return Math.min(100, (elapsedTime / requiredTimeSec) * 100);
   };

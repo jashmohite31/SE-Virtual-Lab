@@ -5,18 +5,18 @@ import { AppError } from '../../utils/AppError.js';
 
 export const createSession = async (req, res, next) => {
   try {
-    const { durationHours } = req.body;
-    if (!durationHours) {
-      return next(new AppError('Duration in hours is required', 400));
+    const { durationMinutes } = req.body;
+    if (!durationMinutes) {
+      return next(new AppError('Duration in minutes is required', 400));
     }
 
     const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const expiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + durationMinutes * 60 * 1000);
 
     const session = await AttendanceSession.create({
       teacherId: req.user.id,
       classCode,
-      durationHours,
+      durationMinutes,
       expiresAt,
     });
 

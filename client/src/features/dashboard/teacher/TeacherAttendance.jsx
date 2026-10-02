@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export const TeacherAttendance = () => {
   const queryClient = useQueryClient();
-  const [duration, setDuration] = useState(1);
+  const [duration, setDuration] = useState(60);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
 
   const { data: sessionsRes, isLoading: isLoadingSessions } = useQuery({
@@ -24,7 +24,7 @@ export const TeacherAttendance = () => {
   });
 
   const createSessionMutation = useMutation({
-    mutationFn: (durationHours) => axiosInstance.post('/api/attendance/sessions', { durationHours }),
+    mutationFn: (durationMinutes) => axiosInstance.post('/api/attendance/sessions', { durationMinutes }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['teacher-attendance-sessions'] });
       toast.success('Attendance session created successfully!');
@@ -68,15 +68,15 @@ export const TeacherAttendance = () => {
             </CardHeader>
             <CardBody className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Duration (Hours)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">Duration (Minutes)</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    min="0.5"
-                    step="0.5"
+                    min="1"
+                    step="1"
                     value={duration}
-                    onChange={(e) => setDuration(parseFloat(e.target.value))}
-                    className="flex-1 rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                    onChange={(e) => setDuration(parseInt(e.target.value))}
+                    className="flex-1 rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border dark:bg-slate-900 dark:border-slate-800 dark:text-white"
                   />
                   <button
                     onClick={handleCreateSession}
@@ -100,12 +100,12 @@ export const TeacherAttendance = () => {
               ) : sessions.length === 0 ? (
                 <div className="p-4 text-center text-slate-500 text-sm">No sessions created yet.</div>
               ) : (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {sessions.map(s => (
                     <div 
                       key={s._id} 
                       onClick={() => setSelectedSessionId(s._id)}
-                      className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors ${selectedSessionId === s._id ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
+                      className={`p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors ${selectedSessionId === s._id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-600' : ''}`}
                     >
                       <div className="flex justify-between items-center mb-1">
                         <span className="font-bold text-lg tracking-widest">{s.classCode}</span>
@@ -113,7 +113,7 @@ export const TeacherAttendance = () => {
                       </div>
                       <div className="text-xs text-slate-500 flex justify-between">
                         <span>{new Date(s.createdAt).toLocaleDateString()}</span>
-                        <span>{s.durationHours} hrs</span>
+                        <span>{s.durationMinutes} mins</span>
                       </div>
                     </div>
                   ))}
