@@ -6,7 +6,7 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Clock, Plus, Copy, Users, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export const TeacherAttendance = () => {
   const queryClient = useQueryClient();
@@ -84,7 +84,7 @@ export const TeacherAttendance = () => {
       tableRows.push(rowData);
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 65,
