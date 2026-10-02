@@ -14,6 +14,7 @@ import { BookOpen, FileText, HelpCircle, Laptop, ArrowLeft, CheckCircle2 } from 
 // Import all activity pages
 import ProcessModelsActivity from './process-models/ProcessModelsActivity.jsx';
 import SrsGeneratorActivity from './srs-generator/SrsGeneratorActivity.jsx';
+import SrsExperimentView from './srs-generator/SrsExperimentView.jsx';
 import ProjectSchedulingActivity from './project-scheduling/ProjectSchedulingActivity.jsx';
 import CostEstimationActivity from './cost-estimation/CostEstimationActivity.jsx';
 import UmlLabActivity from './uml-lab/UmlLabActivity.jsx';
@@ -44,8 +45,15 @@ export const ExperimentLayout = () => {
   const { slug } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('objective');
+  const isSrsModule = slug === 'srs-generator';
+  const [activeTab, setActiveTab] = useState(isSrsModule ? 'aim' : 'objective');
   const [popup, setPopup] = useState(null);
+
+  useEffect(() => {
+    if (isSrsModule && (activeTab === 'objective' || activeTab === 'activity')) {
+      // Set default tab for SRS module if needed
+    }
+  }, [slug, isSrsModule]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -149,18 +157,31 @@ export const ExperimentLayout = () => {
     );
   }
 
+  const srsTabs = [
+    { id: 'aim', label: 'Aim', icon: <BookOpen size={14} /> },
+    { id: 'introduction', label: 'Introduction', icon: <FileText size={14} /> },
+    { id: 'objective', label: 'Objective', icon: <CheckCircle2 size={14} /> },
+    { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
+    { id: 'srs-generator', label: 'SRS Generator', icon: <Laptop size={14} /> },
+    { id: 'case-study', label: 'Case Study', icon: <FileText size={14} /> },
+    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> },
+    { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> }
+  ];
+
   const baseTabs = [
     { id: 'objective', label: 'Objective', icon: <BookOpen size={14} /> },
     { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
     { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> }
   ];
 
-  const tabs = user?.role === 'visitor' ? baseTabs : [
+  const defaultTabs = user?.role === 'visitor' ? baseTabs : [
     ...baseTabs,
     { id: 'activity', label: 'Simulation Activity', icon: <Laptop size={14} /> },
     { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> },
     { id: 'report', label: 'Lab Report', icon: <FileText size={14} /> }
   ];
+
+  const tabs = isSrsModule ? srsTabs : defaultTabs;
 
   const handleSaveActivity = async (data, status = 'in-progress') => {
     await saveSubmission.mutateAsync({ data, status });
@@ -210,70 +231,81 @@ export const ExperimentLayout = () => {
 
         {/* Tab Contents */}
         <div className="pt-2">
-          {activeTab === 'objective' && (
-            <Card>
-              <CardBody className="p-6 space-y-4">
-                <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Laboratory Objective</h3>
-                <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.objective}</p>
-              </CardBody>
-            </Card>
-          )}
-
-          {activeTab === 'theory' && (
-            <Card>
-              <CardBody className="p-6 space-y-4">
-                <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250 font-serif">Theoretical Concepts</h3>
-                <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.theory}</p>
-              </CardBody>
-            </Card>
-          )}
-
-          {activeTab === 'procedure' && (
-            <Card>
-              <CardBody className="p-6 space-y-4">
-                <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Lab Instructions & Guidelines</h3>
-                <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.procedure}</p>
-              </CardBody>
-            </Card>
-          )}
-
-          {activeTab === 'activity' && ActivityComponent && (
-            <ActivityComponent
+          {isSrsModule ? (
+            <SrsExperimentView
+              activeTab={activeTab}
               submission={submission}
               onSave={handleSaveActivity}
+              slug={slug}
             />
-          )}
+          ) : (
+            <>
+              {activeTab === 'objective' && (
+                <Card>
+                  <CardBody className="p-6 space-y-4">
+                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Laboratory Objective</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.objective}</p>
+                  </CardBody>
+                </Card>
+              )}
 
-          {activeTab === 'quiz' && (
-            <Card>
-              <CardBody className="p-6">
-                <QuizEngine experimentSlug={slug} />
-              </CardBody>
-            </Card>
-          )}
+              {activeTab === 'theory' && (
+                <Card>
+                  <CardBody className="p-6 space-y-4">
+                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250 font-serif">Theoretical Concepts</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.theory}</p>
+                  </CardBody>
+                </Card>
+              )}
 
-          {activeTab === 'report' && (
-            <Card>
-              <CardBody className="p-6 text-center space-y-4">
-                <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">Compile Laboratory Report</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                  Upon completion of the interactive activity, you can compile and download your results as an official PDF lab sheet.
-                </p>
+              {activeTab === 'procedure' && (
+                <Card>
+                  <CardBody className="p-6 space-y-4">
+                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Lab Instructions & Guidelines</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.procedure}</p>
+                  </CardBody>
+                </Card>
+              )}
 
-                {submission?.status === 'submitted' ? (
-                  <ReportGenerator
-                    experimentTitle={experiment.title}
-                    studentName={user?.name}
-                    studentEmail={user?.email}
-                    activityData={submission.data}
-                  />
-                ) : (
-                  <div className="p-4 border border-dashed rounded-xl text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-950/20 max-w-sm mx-auto">
-                    Please complete and submit the Simulation Activity first.
-                  </div>
-                )}
-              </CardBody>
-            </Card>
+              {activeTab === 'activity' && ActivityComponent && (
+                <ActivityComponent
+                  submission={submission}
+                  onSave={handleSaveActivity}
+                />
+              )}
+
+              {activeTab === 'quiz' && (
+                <Card>
+                  <CardBody className="p-6">
+                    <QuizEngine experimentSlug={slug} />
+                  </CardBody>
+                </Card>
+              )}
+
+              {activeTab === 'report' && (
+                <Card>
+                  <CardBody className="p-6 text-center space-y-4">
+                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">Compile Laboratory Report</h3>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                      Upon completion of the interactive activity, you can compile and download your results as an official PDF lab sheet.
+                    </p>
+
+                    {submission?.status === 'submitted' ? (
+                      <ReportGenerator
+                        experimentTitle={experiment.title}
+                        studentName={user?.name}
+                        studentEmail={user?.email}
+                        activityData={submission.data}
+                      />
+                    ) : (
+                      <div className="p-4 border border-dashed rounded-xl text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-950/20 max-w-sm mx-auto">
+                        Please complete and submit the Simulation Activity first.
+                      </div>
+                    )}
+                  </CardBody>
+                </Card>
+              )}
+            </>
           )}
         </div>
       </div>

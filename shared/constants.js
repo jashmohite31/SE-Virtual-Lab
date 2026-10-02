@@ -83,64 +83,114 @@ export const DEFAULT_QUIZZES = {
   'srs-generator': {
     questions: [
       {
-        questionText: 'Which IEEE standard provides guidelines for Software Requirements Specifications (SRS)?',
-        options: ['IEEE 1012', 'IEEE 830', 'IEEE 829', 'IEEE 1058'],
+        questionText: 'What is the primary objective of creating a Software Requirements Specification (SRS)?',
+        options: [
+          'To write production-ready code and database schema definitions.',
+          'To establish a formal, unambiguous agreement between stakeholders and developers detailing what the system must do.',
+          'To design the high-level graphical layout and marketing material.',
+          'To define the post-launch software sales strategy.'
+        ],
         correctIndex: 1,
-        explanation: 'IEEE 830 is the widely recognized standard that describes the structure, contents, and qualities of a good SRS.'
+        explanation: 'The SRS serves as the agreed baseline specification of system services and constraints between clients, architects, and QA teams.'
       },
       {
-        questionText: 'What type of requirement is "The system must process payments securely within 2 seconds"?',
-        options: ['Functional Requirement', 'Non-Functional Requirement', 'Business Requirement', 'User Requirement'],
-        correctIndex: 1,
-        explanation: 'Performance and security characteristics are non-functional requirements (NFRs) specifying how the system performs a function.'
-      },
-      {
-        questionText: 'Which of the following is NOT a core component of an SRS?',
-        options: ['Introduction', 'Functional Requirements', 'Source Code listing', 'External Interface requirements'],
+        questionText: 'Which section of the standard IEEE 830 SRS template contains the detailed list of functional and non-functional requirements?',
+        options: [
+          'Section 1: Introduction',
+          'Section 2: Overall Description',
+          'Section 3: Specific Requirements',
+          'Section 4: Index and Appendices'
+        ],
         correctIndex: 2,
-        explanation: 'An SRS specifies requirements, not implementation details like source code.'
+        explanation: 'In the IEEE 830 format, Section 1 introduces the project, Section 2 provides high-level context, and Section 3 details all Specific Requirements (FRs, NFRs, interfaces).'
       },
       {
-        questionText: 'What is a "Functional Requirement"?',
-        options: ['A statement detailing system performance', 'A statement describing what service or function the system must perform', 'A hardware requirement', 'A licensing condition'],
+        questionText: 'Consider this requirement: "The Book Management System should process transactions quickly." Why does this statement fail standard software engineering criteria?',
+        options: [
+          'It is incomplete because it omits database engine details.',
+          'It is ambiguous and untestable because "quickly" lacks a measurable quantitative threshold.',
+          'It is inconsistent with software development standards.',
+          'It is an organizational requirement rather than a software requirement.'
+        ],
         correctIndex: 1,
-        explanation: 'Functional requirements define the core functions, behaviors, and inputs/outputs of the system.'
+        explanation: 'Requirements containing subjective adjectives like "quickly" cannot be verified by QA engineers without measurable metrics (such as maximum latency in seconds).'
       },
       {
-        questionText: 'Why is ambiguity in an SRS dangerous?',
-        options: ['It causes compiler errors', 'It leads to multiple interpretations and incorrect implementations', 'It increases database file sizes', 'It violates copyright laws'],
+        questionText: 'Which of the following is correctly classified as a Functional Requirement?',
+        options: [
+          'The system shall authenticate members with an email address and password before permitting book reservations.',
+          'The system must be written in Node.js using an Express framework.',
+          'The system shall remain available 99.95% of the time each calendar month.',
+          'The user interface must be accessible across multiple screen resolutions.'
+        ],
+        correctIndex: 0,
+        explanation: 'Verifying credentials before allowing a reservation specifies a system behavior, input condition, and workflow, making it a Functional Requirement.'
+      },
+      {
+        questionText: 'Which of the following describes "The database shall encrypt stored patron personal data."?',
+        options: [
+          'Functional Requirement',
+          'Non-Functional Requirement (Security)',
+          'User Business Model',
+          'Scope Exclusion'
+        ],
         correctIndex: 1,
-        explanation: 'Ambiguous requirements cause developers and clients to have different expectations, leading to design defects and wasted work.'
+        explanation: 'Encrypting stored data defines a system security constraint and quality attribute, which is a Non-Functional Requirement.'
       },
       {
-        questionText: 'A requirement is "verifiable" if and only if:',
-        options: ['The programmer understands it', 'There exists a finite cost-effective process to check that the software meets it', 'It is written in mathematical notation', 'The customer signs off on it'],
+        questionText: 'According to requirements engineering principles, what is the primary distinction between "User Requirements" and "System Requirements"?',
+        options: [
+          'User requirements specify internal system architecture, while system requirements define the marketing strategy.',
+          'User requirements are high-level statements written in natural language for clients, while system requirements provide detailed, technical specifications for developers.',
+          'User requirements are optional guidelines, while system requirements represent legal contracts.',
+          'User requirements focus exclusively on hardware constraints, while system requirements focus on user interface styling.'
+        ],
         correctIndex: 1,
-        explanation: 'Verifiability means a test or inspection can prove whether the software complies with the requirement.'
+        explanation: 'User requirements are expressed in everyday natural language so that non-technical clients and domain stakeholders can verify what the system should do. System requirements define the precise functional, technical, and operational details needed by software architects, developers, and QA engineers for implementation and testing.'
       },
       {
-        questionText: 'Non-Functional Requirements are also known as:',
-        options: ['Code constructs', 'Quality Attributes', 'Use Cases', 'Actor lists'],
+        questionText: 'Which of the following describes the key characteristic of "completeness" in a Software Requirements Specification?',
+        options: [
+          'All requirements are written using strict mathematical notations and formal logic.',
+          'The specification accounts for all valid user inputs, system responses, exception handling, and constraints without omitting necessary information.',
+          'Every requirement statement is approved by external third-party regulatory bodies.',
+          'The document contains full source code snippets and physical database table definitions.'
+        ],
         correctIndex: 1,
-        explanation: 'Non-Functional Requirements are also referred to as system quality attributes (usability, reliability, security, scalability).'
+        explanation: 'A requirement specification is considered complete when it describes everything the system should do, including normal operational flows, edge cases, error conditions, and negative outcomes, without leaving gaps for developers to guess.'
       },
       {
-        questionText: 'Who are the primary readers of an SRS document?',
-        options: ['Only the end-users', 'Only the database administrators', 'Customers, project managers, developers, and testers', 'Only executive sponsors'],
-        correctIndex: 2,
-        explanation: 'The SRS serves as a contract and guide for all key project stakeholders, including clients, managers, developers, and testers.'
-      },
-      {
-        questionText: 'What is the purpose of the "Scope" section in an SRS?',
-        options: ['To list variables and their data types', 'To establish the boundaries of the software product and what it will accomplish', 'To detail team salaries', 'To define physical database schemas'],
+        questionText: 'Non-functional requirements that mandate compliance with ISO/IEC standards or organizational CMMI levels are classified as:',
+        options: [
+          'Product Requirements',
+          'Organizational / External Requirements',
+          'Interface Requirements',
+          'Behavioural Requirements'
+        ],
         correctIndex: 1,
-        explanation: 'The scope details what is in-bounds and out-of-bounds for the project, aligning expectations.'
+        explanation: 'Rules originating from corporate policies, industry standards, or legal frameworks are classified as organizational or external non-functional requirements.'
       },
       {
-        questionText: 'Which of the following is an example of an external interface requirement?',
-        options: ['Bcrypt hashing algorithm', 'User Interface guidelines and external hardware/software API integrations', 'Memory structure definitions', 'Local index optimizations'],
+        questionText: 'Why should an SRS describe system behaviour without specifying internal implementation details (e.g., specific class methods or internal variables)?',
+        options: [
+          'To prevent developers from writing automated unit tests.',
+          'To preserve design independence, allowing engineers to choose the optimal architecture and technology stack to meet the requirements.',
+          'Because clients are legally prohibited from reviewing technical details.',
+          'To reduce the total page count of the SRS document.'
+        ],
         correctIndex: 1,
-        explanation: 'External interfaces define connections to users, external hardware, or external software systems and APIs.'
+        explanation: 'An SRS focuses on what the system must do rather than how to implement it, leaving design and algorithmic decisions to the architecture phase.'
+      },
+      {
+        questionText: 'What role does requirement traceability play throughout the Software Development Life Cycle?',
+        options: [
+          'It ensures every requirement has a unique identifier that maps forward to design components, code modules, and test cases.',
+          'It automatically generates user manuals from source code comments.',
+          'It tracks employee hours for billing purposes.',
+          'It monitors real-time CPU usage on production servers.'
+        ],
+        correctIndex: 0,
+        explanation: 'Traceability links each unique requirement identifier (FR-01, NFR-01) through architectural components, source code, and validation test cases to prevent gaps and scope creep.'
       }
     ]
   },
