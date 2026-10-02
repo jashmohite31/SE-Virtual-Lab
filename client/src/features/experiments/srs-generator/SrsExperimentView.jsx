@@ -4,7 +4,8 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { QuizEngine } from '../../../shared/components/quiz/QuizEngine.jsx';
 import SrsGeneratorActivity from './SrsGeneratorActivity.jsx';
 import { SRS_EXPERIMENT_DATA } from './srsData.js';
-import { CheckCircle2, Info, Laptop, FileText, Target, BookOpen, Layers, ShieldCheck, Database } from 'lucide-react';
+import { CheckCircle2, Info, Laptop, FileText, Target, BookOpen, Layers, ShieldCheck, Database, Download } from 'lucide-react';
+import { downloadIeeeSrsPdf, buildIeeeSrsDocument, LMS_CASE_STUDY_PRESET } from './srsPdfGenerator.js';
 
 export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
   const { aim, introduction, objective, theory, caseStudy, procedure } = SRS_EXPERIMENT_DATA;
@@ -272,11 +273,23 @@ export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
           {/* Case Study Title & Problem Description */}
           <Card className="shadow-sm">
             <CardBody className="p-6 space-y-4">
-              <div className="flex items-center justify-between border-b pb-3">
-                <h3 className="font-extrabold text-lg text-slate-800 dark:text-slate-100 font-serif">
-                  {caseStudy.title}
-                </h3>
-                <Badge variant="indigo">Case Study</Badge>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                <div>
+                  <h3 className="font-extrabold text-lg text-slate-800 dark:text-slate-100 font-serif">
+                    {caseStudy.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-sans mt-0.5">IEEE Std 830-1998 Reference Model</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="indigo">Case Study</Badge>
+                  <button
+                    type="button"
+                    onClick={() => downloadIeeeSrsPdf(buildIeeeSrsDocument(LMS_CASE_STUDY_PRESET))}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all"
+                  >
+                    <Download size={13} /> Download Case Study (PDF)
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3 pt-1">
