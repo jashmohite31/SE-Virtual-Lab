@@ -11,6 +11,14 @@ const attendanceSessionSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  className: {
+    type: String,
+    required: true,
+  },
+  semester: {
+    type: String,
+    required: true,
+  },
   durationMinutes: {
     type: Number,
     required: true,

@@ -5,9 +5,9 @@ import { AppError } from '../../utils/AppError.js';
 
 export const createSession = async (req, res, next) => {
   try {
-    const { durationMinutes } = req.body;
-    if (!durationMinutes) {
-      return next(new AppError('Duration in minutes is required', 400));
+    const { durationMinutes, className, semester } = req.body;
+    if (!durationMinutes || !className || !semester) {
+      return next(new AppError('Duration, Class Name, and Semester are required', 400));
     }
 
     const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -16,6 +16,8 @@ export const createSession = async (req, res, next) => {
     const session = await AttendanceSession.create({
       teacherId: req.user.id,
       classCode,
+      className,
+      semester,
       durationMinutes,
       expiresAt,
     });
