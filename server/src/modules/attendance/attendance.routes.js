@@ -1,5 +1,6 @@
 import express from 'express';
-import { protect, restrictTo } from '../../middleware/authMiddleware.js';
+import { protect } from '../../middleware/authMiddleware.js';
+import { restrictTo } from '../../middleware/roleGuard.js';
 import * as attendanceController from './attendance.controller.js';
 
 const router = express.Router();
