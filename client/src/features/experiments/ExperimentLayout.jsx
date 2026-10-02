@@ -11,6 +11,8 @@ import { QuizEngine } from '../../shared/components/quiz/QuizEngine.jsx';
 import { ReportGenerator } from '../../shared/components/report/ReportGenerator.jsx';
 import { BookOpen, FileText, HelpCircle, Laptop, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
+import { EXPERIMENT_METADATA } from '../../shared/experimentTypes.js';
+
 // Import all activity pages
 import ProcessModelsActivity from './process-models/ProcessModelsActivity.jsx';
 import SrsGeneratorActivity from './srs-generator/SrsGeneratorActivity.jsx';
@@ -129,11 +131,12 @@ export const ExperimentLayout = () => {
     }
   });
 
-  const experiment = expRes?.data?.data?.experiment;
+  const fallbackExp = EXPERIMENT_METADATA.find((e) => e.slug === slug);
+  const experiment = expRes?.data?.data?.experiment || fallbackExp;
   const submission = subRes?.data?.data?.submission;
   const ActivityComponent = ACTIVITIES[slug];
 
-  if (expLoading || subLoading) {
+  if (!experiment && (expLoading || subLoading)) {
     return (
       <DashboardShell>
         <div className="flex h-64 items-center justify-center">
