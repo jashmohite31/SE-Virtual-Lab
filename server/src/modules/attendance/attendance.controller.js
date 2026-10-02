@@ -51,7 +51,7 @@ export const getSessionAttendance = async (req, res, next) => {
       return next(new AppError('Session not found', 404));
     }
 
-    const records = await AttendanceRecord.find({ sessionId }).populate('studentId', 'name email');
+    const records = await AttendanceRecord.find({ sessionId }).populate('studentId', 'name email studentId');
     res.status(200).json({
       status: 'success',
       data: { session, records },

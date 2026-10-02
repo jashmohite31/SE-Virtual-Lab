@@ -71,13 +71,13 @@ export const TeacherAttendance = () => {
     doc.text(`Duration: ${session.durationMinutes} minutes`, 14, 50);
     doc.text(`Class Code: ${session.classCode}`, 14, 56);
 
-    const tableColumn = ["Student ID", "Name", "Join Time", "Status"];
+    const tableColumn = ["Roll No", "Name", "Join Time", "Status"];
     const tableRows = [];
 
     records.forEach(record => {
       const rowData = [
-        record.studentId._id.substring(0, 8), // Just showing start of ID as studentId wasn't populated fully or we can use email
-        record.studentId.name,
+        record.studentId?.studentId || 'N/A', 
+        record.studentId?.name || 'Unknown',
         new Date(record.joinTime).toLocaleTimeString(),
         record.status === 'present' ? 'Present (>= 75%)' : 'Incomplete (< 75%)'
       ];
@@ -261,6 +261,7 @@ export const TeacherAttendance = () => {
                           <table className="w-full text-left">
                             <thead className="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
                               <tr>
+                                <th className="px-4 py-3">Roll No / Student ID</th>
                                 <th className="px-4 py-3">Student</th>
                                 <th className="px-4 py-3">Join Time</th>
                                 <th className="px-4 py-3">Status</th>
@@ -269,9 +270,10 @@ export const TeacherAttendance = () => {
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                               {records.map(record => (
                                 <tr key={record._id}>
+                                  <td className="px-4 py-3 font-bold text-slate-700 dark:text-slate-300 tracking-widest">{record.studentId?.studentId || '-'}</td>
                                   <td className="px-4 py-3 font-medium dark:text-slate-200">
-                                    {record.studentId.name}
-                                    <span className="block text-xs text-slate-400">{record.studentId.email}</span>
+                                    {record.studentId?.name}
+                                    <span className="block text-xs text-slate-400">{record.studentId?.email}</span>
                                   </td>
                                   <td className="px-4 py-3 text-slate-500">{new Date(record.joinTime).toLocaleTimeString()}</td>
                                   <td className="px-4 py-3">
