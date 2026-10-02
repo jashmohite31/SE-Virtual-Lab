@@ -5,6 +5,7 @@ import axiosInstance from '../../../shared/lib/axiosInstance.js';
 import { Card, CardBody } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Beaker, Trophy, ChevronRight, Play } from 'lucide-react';
+import { StudentAttendance } from './StudentAttendance.jsx';
 
 export const StudentDashboard = () => {
   const { data: analyticsRes, isLoading: analyticsLoading } = useQuery({
@@ -97,6 +98,8 @@ export const StudentDashboard = () => {
           </CardBody>
         </Card>
       </div>
+
+      <StudentAttendance />
 
       {/* Main Grid */}
       <div className="space-y-6">

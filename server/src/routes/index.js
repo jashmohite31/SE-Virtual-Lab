@@ -6,6 +6,7 @@ import progressRoutes from '../modules/progress/progress.routes.js';
 import certificateRoutes from '../modules/certificates/certificate.routes.js';
 import notificationRoutes from '../modules/notifications/notification.routes.js';
 import analyticsRoutes from '../modules/analytics/analytics.routes.js';
+import attendanceRoutes from '../modules/attendance/attendance.routes.js';
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use('/progress', progressRoutes);
 router.use('/certificates', certificateRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/attendance', attendanceRoutes);
 
 export default router;

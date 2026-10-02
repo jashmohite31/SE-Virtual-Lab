@@ -4,6 +4,7 @@ import axiosInstance from '../../../shared/lib/axiosInstance.js';
 import { Card, CardBody, CardHeader } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Users, Trophy, GraduationCap, ChevronRight, BarChart } from 'lucide-react';
+import { TeacherAttendance } from './TeacherAttendance.jsx';
 
 export const TeacherDashboard = () => {
   const { data: analyticsRes, isLoading } = useQuery({
@@ -159,6 +160,8 @@ export const TeacherDashboard = () => {
           </Card>
         </div>
       </div>
+
+      <TeacherAttendance />
     </div>
   );
 };
