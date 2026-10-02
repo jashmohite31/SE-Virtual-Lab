@@ -1,76 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import axiosInstance from '../../../shared/lib/axiosInstance.js';
-import { Card, CardBody, CardHeader } from '../../../shared/components/ui/Card.jsx';
-import { Clock, CheckCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
+import React, { useState } from 'react';
+import { Card, CardBody } from '../../../shared/components/ui/Card.jsx';
+import { Clock, CheckCircle, LogOut } from 'lucide-react';
+import { useAttendance } from '../../../shared/context/AttendanceContext.jsx';
 
 export const StudentAttendance = () => {
   const [classCode, setClassCode] = useState('');
-  const [session, setSession] = useState(null);
-  const [record, setRecord] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isJoining, setIsJoining] = useState(false);
+  const { session, record, progress, joinSession, leaveSession } = useAttendance();
 
-  const joinSessionMutation = useMutation({
-    mutationFn: (code) => axiosInstance.post('/api/attendance/join', { classCode: code }),
-    onSuccess: (res) => {
-      setSession(res.data.data.session);
-      setRecord(res.data.data.record);
-      toast.success('Joined session successfully!');
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to join session');
-    }
-  });
-
-  const markAttendanceMutation = useMutation({
-    mutationFn: (sessionId) => axiosInstance.post('/api/attendance/mark', { sessionId }),
-    onSuccess: (res) => {
-      setRecord(res.data.data.record);
-      toast.success('Attendance marked successfully!');
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to mark attendance');
-    }
-  });
-
-  const handleJoin = (e) => {
+  const handleJoin = async (e) => {
     e.preventDefault();
     if (!classCode.trim()) return;
-    joinSessionMutation.mutate(classCode);
+    setIsJoining(true);
+    await joinSession(classCode.toUpperCase());
+    setIsJoining(false);
   };
-
-  useEffect(() => {
-    let interval;
-    if (session && record?.status === 'pending') {
-      const requiredTimeSec = session.durationHours * 3600 * 0.75;
-      
-      interval = setInterval(() => {
-        setElapsedTime(prev => {
-          const next = prev + 1;
-          if (next >= requiredTimeSec) {
-            clearInterval(interval);
-            markAttendanceMutation.mutate(session._id);
-          }
-          return next;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [session, record?.status, markAttendanceMutation]);
-
-  const getProgress = () => {
-    if (!session) return 0;
-    const requiredTimeSec = session.durationHours * 3600 * 0.75;
-    if (record?.status === 'present') return 100;
-    return Math.min(100, (elapsedTime / requiredTimeSec) * 100);
-  };
-
-  const progress = getProgress();
 
   return (
     <div className="space-y-6 mt-8">
-      <h2 className="text-xl font-bold tracking-tight">Attendance</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold tracking-tight">Attendance</h2>
+        {session && (
+          <button 
+            onClick={leaveSession}
+            className="text-xs font-semibold text-slate-500 hover:text-red-500 flex items-center gap-1 transition-colors"
+          >
+            <LogOut size={14} /> Leave Session
+          </button>
+        )}
+      </div>
       
       <Card>
         <CardBody className="p-6">
@@ -88,16 +46,16 @@ export const StudentAttendance = () => {
                   placeholder="Enter Class Code"
                   value={classCode}
                   onChange={(e) => setClassCode(e.target.value.toUpperCase())}
-                  className="w-full text-center tracking-widest uppercase font-bold text-lg rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 border"
+                  className="w-full text-center tracking-widest uppercase font-bold text-lg rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 border dark:bg-slate-900 dark:border-slate-800 dark:text-white"
                   required
                 />
               </div>
               <button
                 type="submit"
-                disabled={joinSessionMutation.isPending}
+                disabled={isJoining}
                 className="w-full bg-indigo-600 text-white px-4 py-3 rounded-md hover:bg-indigo-700 font-medium transition-colors disabled:opacity-50"
               >
-                {joinSessionMutation.isPending ? 'Joining...' : 'Join Session'}
+                {isJoining ? 'Joining...' : 'Join Session'}
               </button>
             </form>
           ) : (
@@ -105,15 +63,15 @@ export const StudentAttendance = () => {
               {record?.status === 'present' ? (
                 <div className="space-y-2">
                   <CheckCircle className="mx-auto h-16 w-16 text-emerald-500" />
-                  <h3 className="text-xl font-bold text-slate-900">Attendance Marked!</h3>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Attendance Marked!</h3>
                   <p className="text-slate-500 text-sm">You have successfully completed the attendance requirement.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <Clock className="mx-auto h-12 w-12 text-indigo-500 animate-pulse" />
-                  <h3 className="text-lg font-medium text-slate-900">Tracking Attendance</h3>
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-white">Tracking Attendance</h3>
                   <p className="text-sm text-slate-500">
-                    Stay on this page. Your attendance will be marked automatically once you complete 75% of the class duration.
+                    Your attendance is being tracked globally. You can navigate to other tabs and your time will continue to be recorded.
                   </p>
                   
                   <div className="space-y-2 mt-6">
@@ -121,7 +79,7 @@ export const StudentAttendance = () => {
                       <span>Progress</span>
                       <span>{Math.round(progress)}%</span>
                     </div>
-                    <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-indigo-600 transition-all duration-1000 ease-linear rounded-full"
                         style={{ width: `${progress}%` }}
