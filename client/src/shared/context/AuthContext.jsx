@@ -43,22 +43,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, role = 'student', idDocument = null, studentId = null) => {
     setLoading(true);
     try {
-      let payload;
-      let headers = {};
+      let payload = { name, email, password, role };
+      if (studentId) payload.studentId = studentId;
+      // Note: idDocument is not sent as a file upload because the backend doesn't support multipart/form-data yet.
       
-      if (idDocument) {
-        payload = new FormData();
-        payload.append('name', name);
-        payload.append('email', email);
-        payload.append('password', password);
-        payload.append('role', role);
-        if (studentId) payload.append('studentId', studentId);
-        payload.append('idDocument', idDocument);
-        headers['Content-Type'] = 'multipart/form-data';
-      } else {
-        payload = { name, email, password, role };
-        if (studentId) payload.studentId = studentId;
-      }
+      let headers = {};
 
       const res = await axiosInstance.post('/api/auth/register', payload, { headers });
       localStorage.setItem('token', res.data.token);
