@@ -164,7 +164,6 @@ export const ExperimentLayout = () => {
     { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
     { id: 'srs-generator', label: 'SRS Generator', icon: <Laptop size={14} /> },
     { id: 'case-study', label: 'Case Study', icon: <FileText size={14} /> },
-    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> },
     { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> }
   ];
 

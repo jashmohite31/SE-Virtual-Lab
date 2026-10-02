@@ -7,7 +7,7 @@ import { Badge } from '../ui/Badge.jsx';
 import { CheckCircle2, XCircle, Award, ChevronRight, RefreshCw, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const QuizEngine = ({ experimentSlug, onComplete }) => {
+export const QuizEngine = ({ experimentSlug, fallbackQuestions = null, onComplete }) => {
   const queryClient = useQueryClient();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selections, setSelections] = useState({}); // questionId -> selectedIndex
@@ -16,7 +16,8 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
   // Fetch the quiz questions (without correct indices)
   const { data: quizRes, isLoading, error } = useQuery({
     queryKey: ['quiz', experimentSlug],
-    queryFn: () => axiosInstance.get(`/api/quizzes/${experimentSlug}`)
+    queryFn: () => axiosInstance.get(`/api/quizzes/${experimentSlug}`),
+    retry: 1
   });
 
   const submitAttempt = useMutation({
@@ -29,8 +30,13 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
     }
   });
 
-  const quiz = quizRes?.data?.data;
-  const questions = quiz?.questions || [];
+  const serverQuestions = quizRes?.data?.data?.questions;
+  const isGeneric = serverQuestions && serverQuestions.length > 0 && serverQuestions[0]?.questionText?.includes('primary learning objective');
+  const shouldUseFallback = Boolean(fallbackQuestions && (error || !serverQuestions || serverQuestions.length === 0 || isGeneric));
+
+  const questions = shouldUseFallback
+    ? fallbackQuestions.map((q, idx) => ({ _id: q._id || `fallback-q-${idx}`, ...q }))
+    : (serverQuestions || []);
 
   const handleSelect = (qId, optionIdx) => {
     setSelections((prev) => ({
@@ -51,12 +57,70 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
     }
   };
 
+  const evaluateLocally = (answersMap) => {
+    let correctCount = 0;
+    const graded = questions.map((q) => {
+      const selectedIndex = answersMap[q._id];
+      const isCorrect = selectedIndex === q.correctIndex;
+      if (isCorrect) correctCount++;
+      return {
+        questionId: q._id,
+        selectedIndex,
+        isCorrect,
+        correctIndex: q.correctIndex,
+        explanation: q.explanation
+      };
+    });
+    const percentageScore = Math.round((correctCount / questions.length) * 100);
+    const passed = percentageScore >= 60;
+    return {
+      score: percentageScore,
+      passed,
+      questions: questions.map((q, idx) => ({
+        questionText: q.questionText,
+        options: q.options,
+        selectedIndex: graded[idx].selectedIndex,
+        correctIndex: q.correctIndex,
+        isCorrect: graded[idx].isCorrect,
+        explanation: q.explanation
+      }))
+    };
+  };
+
   const handleSubmit = () => {
     const answers = Object.entries(selections).map(([questionId, selectedIndex]) => ({
       questionId,
       selectedIndex
     }));
-    submitAttempt.mutate(answers);
+
+    if (shouldUseFallback) {
+      submitAttempt.mutate(answers, {
+        onSuccess: (res) => {
+          if (res.data?.data?.questions && res.data.data.questions[0]?.questionText === questions[0]?.questionText) {
+            setResult(res.data.data);
+          } else {
+            const localResult = evaluateLocally(selections);
+            setResult(localResult);
+            if (onComplete) onComplete(localResult);
+          }
+        },
+        onError: () => {
+          const localResult = evaluateLocally(selections);
+          setResult(localResult);
+          if (onComplete) onComplete(localResult);
+        }
+      });
+    } else {
+      submitAttempt.mutate(answers, {
+        onError: () => {
+          if (fallbackQuestions) {
+            const localResult = evaluateLocally(selections);
+            setResult(localResult);
+            if (onComplete) onComplete(localResult);
+          }
+        }
+      });
+    }
   };
 
   const handleRetry = () => {
@@ -65,7 +129,7 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
     setResult(null);
   };
 
-  if (isLoading) {
+  if (isLoading && !fallbackQuestions) {
     return (
       <div className="flex h-48 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
@@ -73,7 +137,7 @@ export const QuizEngine = ({ experimentSlug, onComplete }) => {
     );
   }
 
-  if (error) {
+  if (error && !shouldUseFallback) {
     return (
       <div className="text-center py-8 text-red-500">
         <p className="font-semibold">Failed to load quiz checkpoint.</p>

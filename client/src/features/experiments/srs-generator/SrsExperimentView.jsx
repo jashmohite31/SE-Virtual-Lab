@@ -3,12 +3,12 @@ import { Card, CardBody } from '../../../shared/components/ui/Card.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { QuizEngine } from '../../../shared/components/quiz/QuizEngine.jsx';
 import SrsGeneratorActivity from './SrsGeneratorActivity.jsx';
-import { SRS_EXPERIMENT_DATA } from './srsData.js';
+import { SRS_EXPERIMENT_DATA, SRS_QUIZ_QUESTIONS } from './srsData.js';
 import { CheckCircle2, Info, Laptop, FileText, Target, BookOpen, Layers, ShieldCheck, Database, Download } from 'lucide-react';
 import { downloadIeeeSrsPdf, buildIeeeSrsDocument, LMS_CASE_STUDY_PRESET } from './srsPdfGenerator.js';
 
 export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
-  const { aim, introduction, objective, theory, caseStudy, procedure } = SRS_EXPERIMENT_DATA;
+  const { aim, introduction, objective, theory, caseStudy } = SRS_EXPERIMENT_DATA;
 
   switch (activeTab) {
     case 'aim':
@@ -470,40 +470,15 @@ export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
         </div>
       );
 
-    case 'procedure':
-      return (
-        <Card className="shadow-sm">
-          <CardBody className="p-6 space-y-4">
-            <div className="border-b pb-3">
-              <h3 className="font-extrabold text-lg text-slate-800 dark:text-slate-100 font-serif">
-                {procedure.title}
-              </h3>
-            </div>
-            <div className="space-y-3 pt-1">
-              {procedure.steps.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200/80 dark:border-slate-800">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-600 text-white font-extrabold text-xs shrink-0">
-                    {item.step}
-                  </div>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mt-1 font-medium">
-                    {item.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      );
-
     case 'quiz':
       return (
         <Card className="shadow-sm">
           <CardBody className="p-6">
             <div className="mb-4 pb-3 border-b">
               <h3 className="font-bold text-base text-slate-800 dark:text-slate-100">Practice Quiz</h3>
-              <p className="text-xs text-slate-500">10 questions with 4 choices each.</p>
+              <p className="text-xs text-slate-500">10 questions with 4 choices each from IEEE SRS requirements engineering.</p>
             </div>
-            <QuizEngine experimentSlug={slug} />
+            <QuizEngine experimentSlug={slug} fallbackQuestions={SRS_QUIZ_QUESTIONS} />
           </CardBody>
         </Card>
       );

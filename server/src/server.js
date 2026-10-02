@@ -16,21 +16,28 @@ const seedDatabase = async () => {
       console.log('✅ Experiment metadata seeded successfully.');
     }
 
-    const quizCount = await Quiz.countDocuments();
-    if (quizCount === 0) {
-      console.log('🌱 Seeding quiz question banks...');
-      const experiments = await Experiment.find();
-      for (const exp of experiments) {
-        const quizData = DEFAULT_QUIZZES[exp.slug];
-        if (quizData) {
+    console.log('🌱 Checking quiz question banks...');
+    const experiments = await Experiment.find();
+    for (const exp of experiments) {
+      const quizData = DEFAULT_QUIZZES[exp.slug];
+      if (quizData) {
+        const existing = await Quiz.findOne({ experiment: exp._id });
+        if (!existing) {
           await Quiz.create({
             experiment: exp._id,
             questions: quizData.questions
           });
+        } else if (
+          existing.questions.length !== quizData.questions.length ||
+          existing.questions[0]?.questionText !== quizData.questions[0]?.questionText
+        ) {
+          existing.questions = quizData.questions;
+          await existing.save();
+          console.log(`🔄 Synchronized quiz question bank for ${exp.slug}`);
         }
       }
-      console.log('✅ Quiz question banks seeded successfully.');
     }
+    console.log('✅ Quiz question banks verified.');
 
     const adminExists = await User.findOne({ role: 'admin' });
     if (!adminExists) {

@@ -127,7 +127,7 @@ export const DEFAULT_QUIZZES = {
         explanation: 'Verifying credentials before allowing a reservation specifies a system behavior, input condition, and workflow, making it a Functional Requirement.'
       },
       {
-        questionText: 'Which of the following describes "The database shall encrypt stored patron personal data."?',
+        questionText: '"The database shall encrypt stored patron personal data." This requirement is a:',
         options: [
           'Functional Requirement',
           'Non-Functional Requirement (Security)',

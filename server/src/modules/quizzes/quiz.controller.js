@@ -6,6 +6,7 @@ import { Certificate } from '../certificates/certificate.model.js';
 import { User } from '../users/user.model.js';
 import { AppError } from '../../utils/AppError.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import { DEFAULT_QUIZZES } from '../../../../shared/constants.js';
 
 export const getQuizBySlug = asyncHandler(async (req, res, next) => {
   const experiment = await Experiment.findOne({ slug: req.params.slug });
@@ -13,7 +14,24 @@ export const getQuizBySlug = asyncHandler(async (req, res, next) => {
     return next(new AppError('Experiment not found', 404));
   }
 
-  const quiz = await Quiz.findOne({ experiment: experiment._id });
+  let quiz = await Quiz.findOne({ experiment: experiment._id });
+  const defaultQuiz = DEFAULT_QUIZZES[req.params.slug];
+
+  if (!quiz && defaultQuiz) {
+    quiz = await Quiz.create({
+      experiment: experiment._id,
+      questions: defaultQuiz.questions
+    });
+  } else if (
+    quiz &&
+    defaultQuiz &&
+    (quiz.questions.length !== defaultQuiz.questions.length ||
+      quiz.questions[0]?.questionText !== defaultQuiz.questions[0]?.questionText)
+  ) {
+    quiz.questions = defaultQuiz.questions;
+    await quiz.save();
+  }
+
   if (!quiz) {
     return next(new AppError('Quiz not found for this experiment.', 404));
   }
@@ -41,7 +59,24 @@ export const submitQuizAttempt = asyncHandler(async (req, res, next) => {
     return next(new AppError('Experiment not found', 404));
   }
 
-  const quiz = await Quiz.findOne({ experiment: experiment._id });
+  let quiz = await Quiz.findOne({ experiment: experiment._id });
+  const defaultQuiz = DEFAULT_QUIZZES[req.params.slug];
+
+  if (!quiz && defaultQuiz) {
+    quiz = await Quiz.create({
+      experiment: experiment._id,
+      questions: defaultQuiz.questions
+    });
+  } else if (
+    quiz &&
+    defaultQuiz &&
+    (quiz.questions.length !== defaultQuiz.questions.length ||
+      quiz.questions[0]?.questionText !== defaultQuiz.questions[0]?.questionText)
+  ) {
+    quiz.questions = defaultQuiz.questions;
+    await quiz.save();
+  }
+
   if (!quiz) {
     return next(new AppError('Quiz not found.', 404));
   }
