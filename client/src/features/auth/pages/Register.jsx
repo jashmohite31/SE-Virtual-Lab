@@ -12,15 +12,20 @@ export const Register = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    defaultValues: { role: 'student' }
+  });
+  const selectedRole = watch('role');
 
   const onSubmit = async (data) => {
     setError('');
     setLoading(true);
     try {
-      const user = await registerAuth(data.name, data.email, data.password, data.role);
+      const idDocumentFile = data.idDocument && data.idDocument.length > 0 ? data.idDocument[0] : null;
+      const user = await registerAuth(data.name, data.email, data.password, data.role, idDocumentFile, data.studentId);
       if (user.role === 'student') navigate('/student');
       else if (user.role === 'teacher') navigate('/teacher');
+      else if (user.role === 'visitor') navigate('/student'); // Visitors use the student dashboard but with restricted access
       else navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');
@@ -32,7 +37,7 @@ export const Register = () => {
   const roleOptions = [
     { value: 'student', label: 'Student' },
     { value: 'teacher', label: 'Teacher' },
-    { value: 'admin', label: 'Administrator' }
+    { value: 'visitor', label: 'Visitor / Explorer' }
   ];
 
   return (
@@ -88,6 +93,29 @@ export const Register = () => {
                 error={errors.role?.message}
                 {...register('role')}
               />
+
+              {selectedRole === 'student' && (
+                <Input
+                  label="Student ID Number"
+                  placeholder="e.g. 12345678"
+                  error={errors.studentId?.message}
+                  {...register('studentId', {
+                    required: 'Student ID is required for students'
+                  })}
+                />
+              )}
+
+              {selectedRole === 'teacher' && (
+                <Input
+                  label="Upload ID Document (Proof of Identity)"
+                  type="file"
+                  accept=".pdf,image/*"
+                  error={errors.idDocument?.message}
+                  {...register('idDocument', {
+                    required: 'ID Document is required for teachers'
+                  })}
+                />
+              )}
 
               <Button type="submit" variant="primary" className="w-full" disabled={loading}>
                 {loading ? 'Creating account...' : 'Create Account'}

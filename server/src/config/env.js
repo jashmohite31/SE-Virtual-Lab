@@ -9,7 +9,9 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(8).default('super_secret_access_token_key_12345'),
   JWT_REFRESH_SECRET: z.string().min(8).default('super_secret_refresh_token_key_67890'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  CORS_ORIGIN: z.string().default('http://localhost:5173')
+  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  ADMIN_EMAIL: z.string().email().default('admin@virtuallab.com'),
+  ADMIN_PASSWORD: z.string().min(8).default('SecureAdminPass123!')
 });
 
 const parsed = envSchema.safeParse(process.env);

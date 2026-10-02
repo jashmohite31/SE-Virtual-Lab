@@ -149,10 +149,14 @@ export const ExperimentLayout = () => {
     );
   }
 
-  const tabs = [
+  const baseTabs = [
     { id: 'objective', label: 'Objective', icon: <BookOpen size={14} /> },
     { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
-    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> },
+    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> }
+  ];
+
+  const tabs = user?.role === 'visitor' ? baseTabs : [
+    ...baseTabs,
     { id: 'activity', label: 'Simulation Activity', icon: <Laptop size={14} /> },
     { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> },
     { id: 'report', label: 'Lab Report', icon: <FileText size={14} /> }

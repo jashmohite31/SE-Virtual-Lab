@@ -6,7 +6,7 @@ import { generateAccessToken, generateRefreshToken } from '../../utils/generateT
 import { env } from '../../config/env.js';
 
 export const register = asyncHandler(async (req, res, next) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, studentId } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -17,7 +17,8 @@ export const register = asyncHandler(async (req, res, next) => {
     name,
     email,
     password,
-    role
+    role,
+    studentId
   });
 
   const accessToken = generateAccessToken(user);

@@ -3,6 +3,7 @@ import { connectDB } from './config/db.js';
 import { env } from './config/env.js';
 import { Experiment } from './modules/experiments/experiment.model.js';
 import { Quiz } from './modules/quizzes/quiz.model.js';
+import { User } from './modules/users/user.model.js';
 import { EXPERIMENT_METADATA } from '../../shared/experimentTypes.js';
 import { DEFAULT_QUIZZES } from '../../shared/constants.js';
 
@@ -30,6 +31,18 @@ const seedDatabase = async () => {
       }
       console.log('✅ Quiz question banks seeded successfully.');
     }
+
+    const adminExists = await User.findOne({ role: 'admin' });
+    if (!adminExists) {
+      console.log('🌱 Seeding default admin account...');
+      await User.create({
+        name: 'System Administrator',
+        email: env.ADMIN_EMAIL,
+        password: env.ADMIN_PASSWORD,
+        role: 'admin'
+      });
+      console.log('✅ Default admin account seeded successfully.');
+    }
   } catch (error) {
     console.error('❌ Database seeding failed:', error);
   }
@@ -46,3 +59,15 @@ const startServer = async () => {
 };
 
 startServer();
+
+
+
+
+
+
+
+
+
+
+
+

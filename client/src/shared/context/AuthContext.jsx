@@ -40,10 +40,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password, role = 'student') => {
+  const register = async (name, email, password, role = 'student', idDocument = null, studentId = null) => {
     setLoading(true);
     try {
-      const res = await axiosInstance.post('/api/auth/register', { name, email, password, role });
+      let payload;
+      let headers = {};
+      
+      if (idDocument) {
+        payload = new FormData();
+        payload.append('name', name);
+        payload.append('email', email);
+        payload.append('password', password);
+        payload.append('role', role);
+        if (studentId) payload.append('studentId', studentId);
+        payload.append('idDocument', idDocument);
+        headers['Content-Type'] = 'multipart/form-data';
+      } else {
+        payload = { name, email, password, role };
+        if (studentId) payload.studentId = studentId;
+      }
+
+      const res = await axiosInstance.post('/api/auth/register', payload, { headers });
       localStorage.setItem('token', res.data.token);
       setUser(res.data.data.user);
       return res.data.data.user;
