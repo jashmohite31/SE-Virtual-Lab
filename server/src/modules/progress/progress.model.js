@@ -6,7 +6,10 @@ const progressSchema = new mongoose.Schema({
   activityCompleted: { type: Boolean, default: false },
   quizCompleted: { type: Boolean, default: false },
   maxQuizScore: { type: Number, default: 0 },
-  certificateIssued: { type: Boolean, default: false }
+  certificateIssued: { type: Boolean, default: false },
+  visitedTabs: { type: [String], default: [] },
+  srsDownloaded: { type: Boolean, default: false },
+  progressPercentage: { type: Number, default: 0 }
 }, { timestamps: true });
 
 progressSchema.index({ user: 1, experiment: 1 }, { unique: true });

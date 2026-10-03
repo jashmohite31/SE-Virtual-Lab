@@ -30,11 +30,12 @@ export const ExperimentHub = () => {
 
   const getStatus = (expId) => {
     const prog = progressList.find((p) => p.experiment === expId || p.experiment?._id === expId);
-    if (!prog) return { label: 'Not Started', variant: 'info' };
-    if (prog.activityCompleted && prog.quizCompleted) {
-      return { label: 'Completed', variant: 'success', score: prog.maxQuizScore };
+    if (!prog) return { label: 'Not Started', variant: 'info', percentage: 0 };
+    const pct = prog.progressPercentage || 0;
+    if (pct === 100 || (prog.activityCompleted && prog.quizCompleted)) {
+      return { label: 'Completed', variant: 'success', score: prog.maxQuizScore, percentage: 100 };
     }
-    return { label: 'In Progress', variant: 'warning' };
+    return { label: `${pct}% In Progress`, variant: 'warning', percentage: pct };
   };
 
   return (
@@ -61,6 +62,20 @@ export const ExperimentHub = () => {
                   </div>
                   <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">{exp.title}</h3>
                   <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">{exp.objective}</p>
+
+                  {/* Progress bar on lab card */}
+                  {status.percentage > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            status.percentage === 100 ? 'bg-emerald-500' : 'bg-indigo-600'
+                          }`}
+                          style={{ width: `${status.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t flex items-center justify-between mt-auto">

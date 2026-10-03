@@ -7,6 +7,7 @@ import { User } from '../users/user.model.js';
 import { AppError } from '../../utils/AppError.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 import { DEFAULT_QUIZZES } from '../../../../shared/constants.js';
+import { calculateProgressPercentage } from '../progress/progress.controller.js';
 
 export const getQuizBySlug = asyncHandler(async (req, res, next) => {
   const experiment = await Experiment.findOne({ slug: req.params.slug });
@@ -125,6 +126,19 @@ export const submitQuizAttempt = asyncHandler(async (req, res, next) => {
   if (percentageScore > progress.maxQuizScore) {
     progress.maxQuizScore = percentageScore;
   }
+  if (!progress.visitedTabs) {
+    progress.visitedTabs = [];
+  }
+  if (!progress.visitedTabs.includes('quiz')) {
+    progress.visitedTabs.push('quiz');
+  }
+  progress.progressPercentage = calculateProgressPercentage(
+    experiment.slug,
+    progress.visitedTabs,
+    progress.srsDownloaded,
+    progress.activityCompleted,
+    progress.quizCompleted
+  );
   await progress.save();
 
   // If passed and activity is also completed, issue certificate
@@ -168,4 +182,60 @@ export const submitQuizAttempt = asyncHandler(async (req, res, next) => {
     }
   });
 });
-export default { getQuizBySlug, submitQuizAttempt };
+
+export const getQuizAttempts = asyncHandler(async (req, res, next) => {
+  const experiment = await Experiment.findOne({ slug: req.params.slug });
+  if (!experiment) {
+    return next(new AppError('Experiment not found', 404));
+  }
+
+  let quiz = await Quiz.findOne({ experiment: experiment._id });
+  const defaultQuiz = DEFAULT_QUIZZES[req.params.slug];
+  if (!quiz && defaultQuiz) {
+    quiz = await Quiz.create({
+      experiment: experiment._id,
+      questions: defaultQuiz.questions
+    });
+  }
+
+  if (!quiz) {
+    return res.status(200).json({
+      status: 'success',
+      data: { attempts: [] }
+    });
+  }
+
+  const attempts = await QuizAttempt.find({ user: req.user.id, quiz: quiz._id })
+    .sort({ createdAt: -1 });
+
+  const formattedAttempts = attempts.map((attempt) => {
+    const detailedQuestions = quiz.questions.map((q) => {
+      const userAns = attempt.answers.find((a) => a.questionId === q._id.toString());
+      return {
+        questionText: q.questionText,
+        options: q.options,
+        selectedIndex: userAns ? userAns.selectedIndex : -1,
+        correctIndex: q.correctIndex,
+        isCorrect: userAns ? userAns.isCorrect : false,
+        explanation: q.explanation
+      };
+    });
+
+    return {
+      _id: attempt._id,
+      score: attempt.score,
+      passed: attempt.passed,
+      createdAt: attempt.createdAt,
+      totalQuestions: quiz.questions.length,
+      correctCount: attempt.answers.filter((a) => a.isCorrect).length,
+      questions: detailedQuestions
+    };
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: { attempts: formattedAttempts }
+  });
+});
+
+export default { getQuizBySlug, submitQuizAttempt, getQuizAttempts };

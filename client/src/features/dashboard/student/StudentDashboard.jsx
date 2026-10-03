@@ -111,29 +111,49 @@ export const StudentDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {progressList.slice(0, 6).map((prog) => (
-            <Card key={prog._id} className="hover:shadow-md transition-shadow">
-              <CardBody className="space-y-4 flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant={prog.activityCompleted && prog.quizCompleted ? 'success' : 'warning'}>
-                      {prog.activityCompleted && prog.quizCompleted ? 'Completed' : 'In Progress'}
-                    </Badge>
-                    {prog.quizCompleted && (
-                      <span className="text-xs text-slate-500 font-semibold">Quiz: {prog.maxQuizScore}%</span>
-                    )}
+          {progressList.slice(0, 6).map((prog) => {
+            const pct = prog.progressPercentage || 0;
+            return (
+              <Card key={prog._id} className="hover:shadow-md transition-shadow">
+                <CardBody className="space-y-4 flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant={pct === 100 || (prog.activityCompleted && prog.quizCompleted) ? 'success' : 'warning'}>
+                        {pct === 100 || (prog.activityCompleted && prog.quizCompleted) ? 'Completed' : 'In Progress'}
+                      </Badge>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {pct}%
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200">{prog.experiment?.title}</h3>
+                    
+                    {/* Mini Progress Bar */}
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          pct === 100 ? 'bg-emerald-500' : 'bg-indigo-600'
+                        }`}
+                        style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2">
+                      <span>{prog.quizCompleted ? `Quiz: ${prog.maxQuizScore}%` : 'Quiz Pending'}</span>
+                      {prog.experiment?.slug === 'srs-generator' && (
+                        <span>{prog.srsDownloaded ? 'SRS Ready' : 'Download Pending'}</span>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="font-bold text-slate-800 dark:text-slate-200">{prog.experiment?.title}</h3>
-                </div>
-                <Link
-                  to={`/experiments/${prog.experiment?.slug}`}
-                  className="inline-flex items-center gap-1.5 text-xs text-indigo-650 hover:text-indigo-750 font-semibold hover:underline mt-2 self-start"
-                >
-                  Resume Activity <Play size={12} />
-                </Link>
-              </CardBody>
-            </Card>
-          ))}
+                  <Link
+                    to={`/experiments/${prog.experiment?.slug}`}
+                    className="inline-flex items-center gap-1.5 text-xs text-indigo-650 hover:text-indigo-750 font-semibold hover:underline mt-2 self-start"
+                  >
+                    {pct === 100 ? 'Review Lab' : 'Resume Lab'} <Play size={12} />
+                  </Link>
+                </CardBody>
+              </Card>
+            );
+          })}
           {progressList.length === 0 && (
             <div className="col-span-full py-12 text-center text-slate-500 border border-dashed rounded-xl">
               You haven't started any experiments yet. Go to the Experiments tab to launch one!

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../shared/lib/axiosInstance.js';
@@ -10,7 +10,22 @@ import { Badge } from '../../shared/components/ui/Badge.jsx';
 import { QuizEngine } from '../../shared/components/quiz/QuizEngine.jsx';
 import { ReportGenerator } from '../../shared/components/report/ReportGenerator.jsx';
 import { SQA_EXPERIMENT_DATA } from './white-box-testing/sqaData.js';
-import { BookOpen, FileText, HelpCircle, Laptop, ArrowLeft, CheckCircle2, Target, Layers, FlaskConical, BarChart3 } from 'lucide-react';
+import {
+  BookOpen,
+  FileText,
+  HelpCircle,
+  Laptop,
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  Download,
+  Award,
+  Sparkles,
+  Target,
+  Layers,
+  FlaskConical,
+  BarChart3
+} from 'lucide-react';
 
 // Import all activity pages
 import ProcessModelsActivity from './process-models/ProcessModelsActivity.jsx';
@@ -49,12 +64,6 @@ export const ExperimentLayout = () => {
   const isSrsModule = slug === 'srs-generator';
   const [activeTab, setActiveTab] = useState(isSrsModule ? 'aim' : 'objective');
   const [popup, setPopup] = useState(null);
-
-  useEffect(() => {
-    if (isSrsModule && (activeTab === 'objective' || activeTab === 'activity')) {
-      // Set default tab for SRS module if needed
-    }
-  }, [slug, isSrsModule]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -108,6 +117,123 @@ export const ExperimentLayout = () => {
     queryFn: () => axiosInstance.get(`/api/experiments/${slug}/submission`)
   });
 
+  // Fetch Experiment Progress (with fallback to localStorage)
+  const { data: progRes, refetch: refetchProgress } = useQuery({
+    queryKey: ['experiment-progress', slug],
+    queryFn: async () => {
+      const cacheKey = `vlab_prog_${user?._id || user?.id || 'guest'}_${slug}`;
+      try {
+        const res = await axiosInstance.get(`/api/progress/${slug}`);
+        const serverProg = res.data?.data?.progress;
+        if (serverProg) {
+          localStorage.setItem(cacheKey, JSON.stringify(serverProg));
+        }
+        return res;
+      } catch (err) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          return { data: { data: { progress: JSON.parse(cached) } } };
+        }
+        throw err;
+      }
+    },
+    enabled: !!user && !!slug
+  });
+
+  const progress = progRes?.data?.data?.progress;
+
+  // Mutation to update experiment progress
+  const updateProgressMutation = useMutation({
+    mutationFn: async (payload) => {
+      const cacheKey = `vlab_prog_${user?._id || user?.id || 'guest'}_${slug}`;
+      try {
+        const res = await axiosInstance.post(`/api/progress/${slug}`, payload);
+        return res.data;
+      } catch (err) {
+        // Optimistic local update
+        const current = progress || {
+          visitedTabs: [],
+          srsDownloaded: false,
+          activityCompleted: false,
+          quizCompleted: false,
+          progressPercentage: 0
+        };
+        const updatedTabs =
+          payload.visitedTab && !current.visitedTabs.includes(payload.visitedTab)
+            ? [...current.visitedTabs, payload.visitedTab]
+            : current.visitedTabs;
+        const updatedDownloaded =
+          payload.srsDownloaded !== undefined ? payload.srsDownloaded : current.srsDownloaded;
+        const updatedQuiz =
+          payload.quizCompleted !== undefined ? payload.quizCompleted : current.quizCompleted;
+
+        let pct = 0;
+        if (slug === 'srs-generator') {
+          const THEORY = ['aim', 'introduction', 'objective', 'theory', 'case-study'];
+          const vCount = THEORY.filter((t) => updatedTabs.includes(t)).length;
+          let m = vCount;
+          if (updatedDownloaded) m += 1;
+          if (updatedQuiz) m += 1;
+          pct = Math.min(100, Math.round((m / 7) * 100));
+        } else {
+          const BASE = ['objective', 'theory', 'procedure'];
+          const vCount = BASE.filter((t) => updatedTabs.includes(t)).length;
+          let m = vCount;
+          if (current.activityCompleted) m += 1;
+          if (updatedQuiz) m += 1;
+          pct = Math.min(100, Math.round((m / 5) * 100));
+        }
+
+        const offlineProg = {
+          ...current,
+          visitedTabs: updatedTabs,
+          srsDownloaded: updatedDownloaded,
+          quizCompleted: updatedQuiz,
+          progressPercentage: pct
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(offlineProg));
+        return { status: 'success', data: { progress: offlineProg } };
+      }
+    },
+    onSuccess: (data) => {
+      if (data?.data?.progress) {
+        queryClient.setQueryData(['experiment-progress', slug], data);
+        const cacheKey = `vlab_prog_${user?._id || user?.id || 'guest'}_${slug}`;
+        localStorage.setItem(cacheKey, JSON.stringify(data.data.progress));
+      }
+      queryClient.invalidateQueries(['student-progress']);
+      queryClient.invalidateQueries(['student-analytics']);
+    }
+  });
+
+  // Track visiting active tab
+  useEffect(() => {
+    if (user && activeTab && slug) {
+      if (!progress?.visitedTabs || !progress.visitedTabs.includes(activeTab)) {
+        updateProgressMutation.mutate({ visitedTab: activeTab });
+      }
+    }
+  }, [activeTab, slug, user, progress?.visitedTabs]);
+
+  // Handler: SRS Downloaded
+  const handleSrsDownloaded = () => {
+    updateProgressMutation.mutate({ srsDownloaded: true });
+    setPopup({
+      title: 'SRS Document Downloaded! 🎉',
+      message:
+        'Official IEEE Std 830-1998 specification has been exported and your activity milestone is recorded! Complete the practice quiz to achieve 100% completion.'
+    });
+  };
+
+  // Handler: Quiz Complete
+  const handleQuizComplete = (quizResult) => {
+    updateProgressMutation.mutate({
+      quizCompleted: true,
+      maxQuizScore: quizResult.score
+    });
+    refetchProgress();
+  };
+
   // Mutation to save/submit activity work
   const saveSubmission = useMutation({
     mutationFn: ({ data, status }) =>
@@ -115,6 +241,7 @@ export const ExperimentLayout = () => {
     onSuccess: (res, variables) => {
       queryClient.invalidateQueries(['submission', slug]);
       queryClient.invalidateQueries(['student-progress']);
+      queryClient.invalidateQueries(['experiment-progress', slug]);
       if (variables.status === 'submitted') {
         setPopup({
           title: 'Simulation Complete',
@@ -133,6 +260,71 @@ export const ExperimentLayout = () => {
   const experiment = expRes?.data?.data?.experiment;
   const submission = subRes?.data?.data?.submission;
   const ActivityComponent = ACTIVITIES[slug];
+
+  const srsTabs = [
+    { id: 'aim', label: 'Aim', icon: <BookOpen size={14} /> },
+    { id: 'introduction', label: 'Introduction', icon: <FileText size={14} /> },
+    { id: 'objective', label: 'Objective', icon: <CheckCircle2 size={14} /> },
+    { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
+    { id: 'srs-generator', label: 'SRS Generator', icon: <Laptop size={14} /> },
+    { id: 'case-study', label: 'Case Study', icon: <FileText size={14} /> },
+    { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> }
+  ];
+
+  const baseTabs = [
+    { id: 'objective', label: 'Objective', icon: <BookOpen size={14} /> },
+    { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
+    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> }
+  ];
+
+  const defaultTabs =
+    user?.role === 'visitor'
+      ? baseTabs
+      : [
+          ...baseTabs,
+          { id: 'activity', label: 'Simulation Activity', icon: <Laptop size={14} /> },
+          { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> },
+          { id: 'report', label: 'Lab Report', icon: <FileText size={14} /> }
+        ];
+
+  const tabs = isSrsModule ? srsTabs : defaultTabs;
+
+  // Theory subsections count for SRS
+  const SRS_THEORY_TABS = ['aim', 'introduction', 'objective', 'theory', 'case-study'];
+  const srsTheoryCount = progress?.visitedTabs
+    ? SRS_THEORY_TABS.filter((t) => progress.visitedTabs.includes(t)).length
+    : 0;
+
+  // Completion check per tab
+  const isTabCompleted = (tabId) => {
+    if (!progress) return false;
+    if (isSrsModule) {
+      if (SRS_THEORY_TABS.includes(tabId)) {
+        return Boolean(progress.visitedTabs?.includes(tabId));
+      }
+      if (tabId === 'srs-generator') {
+        return Boolean(progress.srsDownloaded);
+      }
+      if (tabId === 'quiz') {
+        return Boolean(progress.quizCompleted);
+      }
+      return false;
+    }
+    if (['objective', 'theory', 'procedure'].includes(tabId)) {
+      return Boolean(progress.visitedTabs?.includes(tabId));
+    }
+    if (tabId === 'activity') {
+      return Boolean(progress.activityCompleted);
+    }
+    if (tabId === 'quiz') {
+      return Boolean(progress.quizCompleted);
+    }
+    return false;
+  };
+
+  const handleSaveActivity = async (data, status = 'in-progress') => {
+    await saveSubmission.mutateAsync({ data, status });
+  };
 
   if (expLoading || subLoading) {
     return (
@@ -158,34 +350,7 @@ export const ExperimentLayout = () => {
     );
   }
 
-  const srsTabs = [
-    { id: 'aim', label: 'Aim', icon: <BookOpen size={14} /> },
-    { id: 'introduction', label: 'Introduction', icon: <FileText size={14} /> },
-    { id: 'objective', label: 'Objective', icon: <CheckCircle2 size={14} /> },
-    { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
-    { id: 'srs-generator', label: 'SRS Generator', icon: <Laptop size={14} /> },
-    { id: 'case-study', label: 'Case Study', icon: <FileText size={14} /> },
-    { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> }
-  ];
-
-  const baseTabs = [
-    { id: 'objective', label: 'Objective', icon: <BookOpen size={14} /> },
-    { id: 'theory', label: 'Theory', icon: <FileText size={14} /> },
-    { id: 'procedure', label: 'Procedure', icon: <HelpCircle size={14} /> }
-  ];
-
-  const defaultTabs = user?.role === 'visitor' ? baseTabs : [
-    ...baseTabs,
-    { id: 'activity', label: 'Simulation Activity', icon: <Laptop size={14} /> },
-    { id: 'quiz', label: 'Practice Quiz', icon: <HelpCircle size={14} /> },
-    { id: 'report', label: 'Lab Report', icon: <FileText size={14} /> }
-  ];
-
-  const tabs = isSrsModule ? srsTabs : defaultTabs;
-
-  const handleSaveActivity = async (data, status = 'in-progress') => {
-    await saveSubmission.mutateAsync({ data, status });
-  };
+  const progressPercentage = progress?.progressPercentage || 0;
 
   return (
     <DashboardShell>
@@ -197,36 +362,153 @@ export const ExperimentLayout = () => {
           <ArrowLeft size={14} /> Back to Laboratories
         </Link>
 
-        <div className="flex items-center justify-between border-b pb-4">
+        {/* Header with Title and Overall Status */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200 font-serif">
               {experiment.title}
             </h1>
             <p className="text-xs text-slate-500 mt-1">Estimated duration: {experiment.estimatedDuration} minutes</p>
           </div>
-          {submission?.status === 'submitted' && (
-            <Badge variant="success" className="flex items-center gap-1">
-              <CheckCircle2 size={12} /> Activity Logged
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {submission?.status === 'submitted' && (
+              <Badge variant="success" className="flex items-center gap-1">
+                <CheckCircle2 size={12} /> Activity Logged
+              </Badge>
+            )}
+            {progressPercentage === 100 && (
+              <Badge variant="success" className="flex items-center gap-1 font-bold">
+                <Sparkles size={12} /> 100% Completed
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Visual Progress Bar & Milestone Status Widget */}
+        <div className="bg-slate-50/90 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2.5 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Module Completion
+              </span>
+              <Badge
+                variant={progressPercentage === 100 ? 'success' : 'warning'}
+                className="text-[11px] font-semibold flex items-center gap-1"
+              >
+                {progressPercentage === 100 ? (
+                  <>
+                    <CheckCircle2 size={12} /> 100% Completed • Lab Finished
+                  </>
+                ) : (
+                  <>
+                    <Clock size={12} /> {progressPercentage}% Progress
+                  </>
+                )}
+              </Badge>
+            </div>
+
+            {/* SRS Milestone Breakdown Pills */}
+            {isSrsModule ? (
+              <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium transition-all ${
+                    srsTheoryCount === 5
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                  }`}
+                  title="Aim, Introduction, Objective, Theory, Case Study (visited once is enough)"
+                >
+                  {srsTheoryCount === 5 ? <CheckCircle2 size={12} /> : <BookOpen size={12} />}
+                  {srsTheoryCount}/5 Theory Subsections Visited
+                </span>
+
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium transition-all ${
+                    progress?.srsDownloaded
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                  }`}
+                  title="Document must be downloaded from the SRS Generator to complete this milestone"
+                >
+                  {progress?.srsDownloaded ? <CheckCircle2 size={12} /> : <Download size={12} />}
+                  {progress?.srsDownloaded ? 'SRS Downloaded' : 'Download Required (SRS)'}
+                </span>
+
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium transition-all ${
+                    progress?.quizCompleted
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                  }`}
+                  title="Complete the practice assessment checkpoint"
+                >
+                  {progress?.quizCompleted ? <CheckCircle2 size={12} /> : <HelpCircle size={12} />}
+                  {progress?.quizCompleted
+                    ? `Quiz Completed (${progress?.maxQuizScore || 0}%)`
+                    : 'Quiz Pending'}
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium ${
+                    progress?.activityCompleted
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-slate-100 text-slate-600 border border-slate-200'
+                  }`}
+                >
+                  <CheckCircle2 size={12} /> Activity {progress?.activityCompleted ? 'Done' : 'Pending'}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium ${
+                    progress?.quizCompleted
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-slate-100 text-slate-600 border border-slate-200'
+                  }`}
+                >
+                  <CheckCircle2 size={12} /> Quiz {progress?.quizCompleted ? 'Passed' : 'Pending'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Visual Progress Bar */}
+          <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ease-out ${
+                progressPercentage === 100
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                  : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+              }`}
+              style={{ width: `${Math.min(100, Math.max(0, progressPercentage))}%` }}
+            />
+          </div>
         </div>
 
         {/* Tab Steppers */}
         <div className="flex border-b overflow-x-auto gap-2 scrollbar-none">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-650'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const completed = isTabCompleted(tab.id);
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'border-indigo-600 text-indigo-650 dark:text-indigo-400'
+                    : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+                {completed && (
+                  <span className="flex items-center text-emerald-500 ml-0.5" title="Section Completed">
+                    <CheckCircle2 size={12} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Tab Contents */}
@@ -237,6 +519,9 @@ export const ExperimentLayout = () => {
               submission={submission}
               onSave={handleSaveActivity}
               slug={slug}
+              progress={progress}
+              onSrsDownloaded={handleSrsDownloaded}
+              onQuizComplete={handleQuizComplete}
             />
           ) : (
             <>
@@ -547,16 +832,13 @@ export const ExperimentLayout = () => {
               )}
 
               {activeTab === 'activity' && ActivityComponent && (
-                <ActivityComponent
-                  submission={submission}
-                  onSave={handleSaveActivity}
-                />
+                <ActivityComponent submission={submission} onSave={handleSaveActivity} />
               )}
 
               {activeTab === 'quiz' && (
                 <Card>
                   <CardBody className="p-6">
-                    <QuizEngine experimentSlug={slug} />
+                    <QuizEngine experimentSlug={slug} onComplete={handleQuizComplete} />
                   </CardBody>
                 </Card>
               )}

@@ -1,6 +1,7 @@
 import { Experiment } from './experiment.model.js';
 import { Submission } from './submission.model.js';
 import { Progress } from '../progress/progress.model.js';
+import { calculateProgressPercentage } from '../progress/progress.controller.js';
 import { AppError } from '../../utils/AppError.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
 
@@ -76,11 +77,29 @@ export const saveSubmission = asyncHandler(async (req, res, next) => {
   }
 
   // Update progress tracking
-  await Progress.findOneAndUpdate(
-    { user: req.user.id, experiment: experiment._id },
-    { activityCompleted: isCompleted || (submission.status === 'submitted') },
-    { upsert: true, new: true }
-  );
+  let progress = await Progress.findOne({ user: req.user.id, experiment: experiment._id });
+  const isActDone = isCompleted || (submission.status === 'submitted');
+  if (progress) {
+    if (isActDone) progress.activityCompleted = true;
+    progress.progressPercentage = calculateProgressPercentage(
+      experiment.slug,
+      progress.visitedTabs,
+      progress.srsDownloaded,
+      progress.activityCompleted,
+      progress.quizCompleted
+    );
+    await progress.save();
+  } else {
+    const initialTabs = experiment.slug === 'srs-generator' ? ['aim'] : ['objective'];
+    const initialPct = calculateProgressPercentage(experiment.slug, initialTabs, false, isActDone, false);
+    await Progress.create({
+      user: req.user.id,
+      experiment: experiment._id,
+      visitedTabs: initialTabs,
+      activityCompleted: isActDone,
+      progressPercentage: initialPct
+    });
+  }
 
   res.status(200).json({
     status: 'success',

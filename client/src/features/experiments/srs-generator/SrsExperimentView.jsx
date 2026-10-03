@@ -7,7 +7,15 @@ import { SRS_EXPERIMENT_DATA, SRS_QUIZ_QUESTIONS } from './srsData.js';
 import { CheckCircle2, Info, Laptop, FileText, Target, BookOpen, Layers, ShieldCheck, Database, Download } from 'lucide-react';
 import { downloadIeeeSrsPdf, buildIeeeSrsDocument, LMS_CASE_STUDY_PRESET } from './srsPdfGenerator.js';
 
-export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
+export const SrsExperimentView = ({
+  activeTab,
+  submission,
+  onSave,
+  slug,
+  progress,
+  onSrsDownloaded,
+  onQuizComplete
+}) => {
   const { aim, introduction, objective, theory, caseStudy } = SRS_EXPERIMENT_DATA;
 
   switch (activeTab) {
@@ -263,7 +271,12 @@ export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
             </div>
             <Badge variant="indigo" className="text-xs">Interactive Tool</Badge>
           </div>
-          <SrsGeneratorActivity submission={submission} onSave={onSave} />
+          <SrsGeneratorActivity
+            submission={submission}
+            onSave={onSave}
+            onSrsDownloaded={onSrsDownloaded}
+            isDownloaded={progress?.srsDownloaded}
+          />
         </div>
       );
 
@@ -478,7 +491,11 @@ export const SrsExperimentView = ({ activeTab, submission, onSave, slug }) => {
               <h3 className="font-bold text-base text-slate-800 dark:text-slate-100">Practice Quiz</h3>
               <p className="text-xs text-slate-500">10 questions with 4 choices each from IEEE SRS requirements engineering.</p>
             </div>
-            <QuizEngine experimentSlug={slug} fallbackQuestions={SRS_QUIZ_QUESTIONS} />
+            <QuizEngine
+              experimentSlug={slug}
+              fallbackQuestions={SRS_QUIZ_QUESTIONS}
+              onComplete={onQuizComplete}
+            />
           </CardBody>
         </Card>
       );

@@ -75,7 +75,7 @@ const NFR_CATEGORIES = [
   'Maintainability & Portability'
 ];
 
-export const SrsGeneratorActivity = ({ submission, onSave }) => {
+export const SrsGeneratorActivity = ({ submission, onSave, onSrsDownloaded, isDownloaded }) => {
   const { user } = useAuth();
   const savedData = submission?.data || {};
 
@@ -179,6 +179,9 @@ export const SrsGeneratorActivity = ({ submission, onSave }) => {
     try {
       setIsDownloading(true);
       downloadIeeeSrsPdf(compiledDoc);
+      if (onSrsDownloaded) {
+        onSrsDownloaded();
+      }
     } catch (err) {
       console.error('PDF export failed:', err);
     } finally {
@@ -229,7 +232,7 @@ export const SrsGeneratorActivity = ({ submission, onSave }) => {
         </div>
 
         {/* View Switcher & PDF Action */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg p-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setViewMode('editor')}
@@ -256,15 +259,27 @@ export const SrsGeneratorActivity = ({ submission, onSave }) => {
             </button>
           </div>
 
-          <Button
-            onClick={handleDownloadPdf}
-            variant="primary"
-            disabled={isDownloading || !title.trim()}
-            className="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap"
-          >
-            <Download size={14} />
-            {isDownloading ? 'Generating PDF...' : 'Download SRS PDF'}
-          </Button>
+          <div className="flex items-center gap-2">
+            {isDownloaded ? (
+              <Badge variant="success" className="flex items-center gap-1 text-[11px] font-semibold py-1">
+                <CheckCircle2 size={12} /> Downloaded & Completed
+              </Badge>
+            ) : (
+              <Badge variant="warning" className="flex items-center gap-1 text-[11px] font-semibold py-1">
+                <Download size={12} /> Download required (100%)
+              </Badge>
+            )}
+
+            <Button
+              onClick={handleDownloadPdf}
+              variant="primary"
+              disabled={isDownloading || !title.trim()}
+              className="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap shadow-sm"
+            >
+              <Download size={14} />
+              {isDownloading ? 'Generating PDF...' : isDownloaded ? 'Re-download SRS PDF' : 'Download SRS PDF'}
+            </Button>
+          </div>
         </div>
       </div>
 
