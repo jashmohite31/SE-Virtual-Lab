@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { corsOptions } from './config/corsOptions.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { AppError } from './utils/AppError.js';
+import mongoose from 'mongoose';
 import apiRouter from './routes/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,19 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Database connection readiness check for API routes
+app.use('/api', (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return next(
+      new AppError(
+        'Database is not connected. Please ensure MongoDB is running locally on port 27017 or set a valid MONGODB_URI in server/.env',
+        503
+      )
+    );
+  }
+  next();
+});
 
 // API Routes
 app.use('/api', apiRouter);

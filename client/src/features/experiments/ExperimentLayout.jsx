@@ -9,7 +9,8 @@ import { Card, CardBody } from '../../shared/components/ui/Card.jsx';
 import { Badge } from '../../shared/components/ui/Badge.jsx';
 import { QuizEngine } from '../../shared/components/quiz/QuizEngine.jsx';
 import { ReportGenerator } from '../../shared/components/report/ReportGenerator.jsx';
-import { BookOpen, FileText, HelpCircle, Laptop, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { SQA_EXPERIMENT_DATA } from './white-box-testing/sqaData.js';
+import { BookOpen, FileText, HelpCircle, Laptop, ArrowLeft, CheckCircle2, Target, Layers, FlaskConical, BarChart3 } from 'lucide-react';
 
 // Import all activity pages
 import ProcessModelsActivity from './process-models/ProcessModelsActivity.jsx';
@@ -240,30 +241,309 @@ export const ExperimentLayout = () => {
           ) : (
             <>
               {activeTab === 'objective' && (
-                <Card>
-                  <CardBody className="p-6 space-y-4">
-                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Laboratory Objective</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.objective}</p>
-                  </CardBody>
-                </Card>
+                slug === 'white-box-testing' ? (
+                  <div className="space-y-4">
+                    {/* Aim Banner */}
+                    <Card>
+                      <CardBody className="p-6">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center shrink-0">
+                            <Target size={18} className="text-indigo-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-extrabold text-base text-slate-800 dark:text-slate-100 mb-1">Aim of the Experiment</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{SQA_EXPERIMENT_DATA.aim.content}</p>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* Introduction */}
+                    <Card>
+                      <CardBody className="p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <BookOpen size={15} className="text-indigo-500" />
+                          <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">Introduction</h3>
+                        </div>
+                        <div className="space-y-3">
+                          {SQA_EXPERIMENT_DATA.introduction.content.split('\n\n').map((para, i) => (
+                            <p key={i} className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{para}</p>
+                          ))}
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* Learning Objectives */}
+                    <Card>
+                      <CardBody className="p-6">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CheckCircle2 size={15} className="text-emerald-500" />
+                          <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.objective.title}</h3>
+                        </div>
+                        <p className="text-xs text-slate-400 mb-4">{SQA_EXPERIMENT_DATA.objective.subtitle}</p>
+                        <ol className="space-y-2">
+                          {SQA_EXPERIMENT_DATA.objective.points.map((pt, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <span className="mt-0.5 w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[10px] font-extrabold flex items-center justify-center shrink-0">{i + 1}</span>
+                              <span className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{pt}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </CardBody>
+                    </Card>
+
+                    {/* Key Concepts at a glance */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[
+                        { icon: <Layers size={18} />, label: 'Control Flow Graph', desc: 'Directed graph representing all possible execution paths through program source code.' },
+                        { icon: <BarChart3 size={18} />, label: 'Cyclomatic Complexity', desc: 'Quantitative measure of program logic complexity introduced by McCabe (1976).' },
+                        { icon: <FlaskConical size={18} />, label: 'Basis Path Testing', desc: 'Technique using V(G) to identify the minimum set of independent test paths for 100% coverage.' }
+                      ].map((c, i) => (
+                        <Card key={i}>
+                          <CardBody className="p-4">
+                            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-500 mb-3">{c.icon}</div>
+                            <h4 className="font-bold text-xs text-slate-800 dark:text-slate-100 mb-1">{c.label}</h4>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{c.desc}</p>
+                          </CardBody>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardBody className="p-6 space-y-4">
+                      <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Laboratory Objective</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.objective}</p>
+                    </CardBody>
+                  </Card>
+                )
               )}
 
               {activeTab === 'theory' && (
-                <Card>
-                  <CardBody className="p-6 space-y-4">
-                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250 font-serif">Theoretical Concepts</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.theory}</p>
-                  </CardBody>
-                </Card>
+                slug === 'white-box-testing' ? (
+                  <div className="space-y-4">
+                    {/* White-Box Testing */}
+                    <Card>
+                      <CardBody className="p-6 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <FileText size={15} className="text-indigo-500" />
+                          <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.whiteBoxHeading}</h3>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{SQA_EXPERIMENT_DATA.theory.whiteBoxIntro}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {SQA_EXPERIMENT_DATA.theory.whiteBoxPoints.map((pt) => (
+                            <div key={pt.name} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 space-y-2">
+                              <h4 className="font-bold text-xs text-indigo-600 dark:text-indigo-400">{pt.name}</h4>
+                              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">{pt.text}</p>
+                              <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Example</p>
+                                <p className="text-[10px] text-indigo-700 dark:text-indigo-300 leading-relaxed">{pt.example}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* CFG */}
+                    <Card>
+                      <CardBody className="p-6 space-y-3">
+                        <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.cfgHeading}</h3>
+                        <p className="text-xs text-slate-500">{SQA_EXPERIMENT_DATA.theory.cfgIntro}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {SQA_EXPERIMENT_DATA.theory.cfgPoints.map((pt) => (
+                            <div key={pt.label} className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40">
+                              <span className="text-[10px] font-extrabold text-indigo-500 uppercase block mb-0.5">{pt.label}</span>
+                              <span className="text-[11px] text-slate-600 dark:text-slate-300">{pt.detail}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">{SQA_EXPERIMENT_DATA.theory.cfgTip}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">CFG Construction Rules</p>
+                          {SQA_EXPERIMENT_DATA.theory.cfgConstruction.map((rule, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <span className="mt-0.5 w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 text-[9px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                              <span className="text-[11px] text-slate-600 dark:text-slate-300">{rule}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* Cyclomatic Complexity */}
+                    <Card>
+                      <CardBody className="p-6 space-y-4">
+                        <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.complexityHeading}</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{SQA_EXPERIMENT_DATA.theory.complexityIntro}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {SQA_EXPERIMENT_DATA.theory.formulas.map((f) => (
+                            <div key={f.name} className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/60 dark:bg-indigo-950/30 space-y-2">
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">{f.name}</p>
+                              <p className="font-mono text-lg font-extrabold text-indigo-700 dark:text-indigo-300">{f.formula}</p>
+                              <p className="text-[10px] text-slate-500 leading-relaxed">{f.description}</p>
+                              <div className="p-2 rounded-lg bg-white dark:bg-slate-900/40 border border-indigo-100 dark:border-indigo-900/30">
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400 mb-0.5">Worked Example</p>
+                                <p className="text-[10px] font-mono text-slate-600 dark:text-slate-300">{f.example}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {/* Risk Scale */}
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Complexity Risk Scale</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {SQA_EXPERIMENT_DATA.theory.complexityScale.map((s) => (
+                              <div key={s.risk} className="p-3 rounded-xl border text-center" style={{ borderColor: s.color === 'emerald' ? '#6ee7b7' : s.color === 'amber' ? '#fcd34d' : s.color === 'orange' ? '#fdba74' : '#fca5a5', background: s.color === 'emerald' ? '#f0fdf4' : s.color === 'amber' ? '#fffbeb' : s.color === 'orange' ? '#fff7ed' : '#fef2f2' }}>
+                                <span className="text-[9px] font-bold block" style={{ color: s.color === 'emerald' ? '#059669' : s.color === 'amber' ? '#d97706' : s.color === 'orange' ? '#ea580c' : '#dc2626' }}>{s.range}</span>
+                                <span className="text-[10px] font-extrabold block mt-0.5" style={{ color: s.color === 'emerald' ? '#047857' : s.color === 'amber' ? '#b45309' : s.color === 'orange' ? '#c2410c' : '#b91c1c' }}>{s.risk}</span>
+                                <span className="text-[9px] text-slate-500 mt-1 block leading-tight">{s.description}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* Basis Path Testing */}
+                    <Card>
+                      <CardBody className="p-6 space-y-3">
+                        <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.basisPathHeading}</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{SQA_EXPERIMENT_DATA.theory.basisPathIntro}</p>
+                        <ol className="space-y-2">
+                          {SQA_EXPERIMENT_DATA.theory.basisPathSteps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <span className="mt-0.5 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 text-[10px] font-extrabold flex items-center justify-center shrink-0">{i + 1}</span>
+                              <span className="text-xs text-slate-600 dark:text-slate-300">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </CardBody>
+                    </Card>
+
+                    {/* WB vs BB Comparison Table */}
+                    <Card>
+                      <CardBody className="p-6 space-y-3">
+                        <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.comparisonTable.heading}</h3>
+                        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="bg-indigo-50 dark:bg-indigo-950/40">
+                                {SQA_EXPERIMENT_DATA.theory.comparisonTable.columns.map((col, i) => (
+                                  <th key={i} className={`px-4 py-3 text-left font-bold uppercase tracking-widest text-xs ${i === 0 ? 'text-slate-500 w-40' : i === 1 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}>{col}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {SQA_EXPERIMENT_DATA.theory.comparisonTable.rows.map((row, ri) => (
+                                <tr key={ri} className={`border-t border-slate-100 dark:border-slate-800 ${ri % 2 === 0 ? 'bg-white dark:bg-slate-900/40' : 'bg-slate-50/60 dark:bg-slate-900/20'}`}>
+                                  <td className="px-4 py-2.5 font-semibold text-slate-600 dark:text-slate-300">{row[0]}</td>
+                                  <td className="px-4 py-2.5 text-indigo-700 dark:text-indigo-300">{row[1]}</td>
+                                  <td className="px-4 py-2.5 text-slate-600 dark:text-slate-300">{row[2]}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardBody>
+                    </Card>
+
+                    {/* SQA in SDLC */}
+                    <Card>
+                      <CardBody className="p-6 space-y-4">
+                        <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.theory.sqaProcessHeading}</h3>
+                        <div className="flex flex-col gap-0">
+                          {SQA_EXPERIMENT_DATA.theory.sqaProcessSteps.map((step, i) => {
+                            const iconMap = { requirements: '📝', design: '🏗️', coding: '💻', testing: '🧪', maintenance: '🔧' };
+                            return (
+                              <div key={i} className="flex gap-4">
+                                <div className="flex flex-col items-center">
+                                  <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border-2 border-indigo-300 dark:border-indigo-700 flex items-center justify-center text-base shrink-0">{iconMap[step.icon] || '•'}</div>
+                                  {i < SQA_EXPERIMENT_DATA.theory.sqaProcessSteps.length - 1 && <div className="w-0.5 flex-1 bg-indigo-100 dark:bg-indigo-900/40 my-1" />}
+                                </div>
+                                <div className="pb-5">
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">{step.phase}</span>
+                                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full font-semibold">{step.activity}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{step.description}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardBody className="p-6 space-y-4">
+                      <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250 font-serif">Theoretical Concepts</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.theory}</p>
+                    </CardBody>
+                  </Card>
+                )
               )}
 
               {activeTab === 'procedure' && (
-                <Card>
-                  <CardBody className="p-6 space-y-4">
-                    <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Lab Instructions & Guidelines</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.procedure}</p>
-                  </CardBody>
-                </Card>
+                slug === 'white-box-testing' ? (
+                  <div className="space-y-4">
+                    <Card>
+                      <CardBody className="p-6 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <HelpCircle size={15} className="text-indigo-500" />
+                          <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{SQA_EXPERIMENT_DATA.procedure.title}</h3>
+                        </div>
+                        <p className="text-xs text-slate-400">Follow these steps in order to complete the SQA experiment successfully:</p>
+                        <ol className="space-y-3">
+                          {SQA_EXPERIMENT_DATA.procedure.steps.map((step, i) => (
+                            <li key={i} className={`flex items-start gap-4 p-3 rounded-xl border transition-colors ${
+                              i < 2 ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30' :
+                              i < 6 ? 'bg-indigo-50/60 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30' :
+                              i < 9 ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30' :
+                              'bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800'
+                            }`}>
+                              <span className={`mt-0.5 w-6 h-6 rounded-full text-[11px] font-extrabold flex items-center justify-center shrink-0 ${
+                                i < 2 ? 'bg-emerald-500 text-white' :
+                                i < 6 ? 'bg-indigo-500 text-white' :
+                                i < 9 ? 'bg-amber-500 text-white' :
+                                'bg-slate-400 text-white'
+                              }`}>{i + 1}</span>
+                              <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </CardBody>
+                    </Card>
+
+                    {/* Quick Reference */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[
+                        { color: 'emerald', label: 'Setup', steps: 'Steps 1–2', desc: 'Choose preset & read the code carefully' },
+                        { color: 'indigo', label: 'Analysis', steps: 'Steps 3–6', desc: 'Build CFG, count metrics, derive paths' },
+                        { color: 'amber', label: 'Verification', steps: 'Steps 7–9', desc: 'Run/animate paths, use calculator, achieve 100%' }
+                      ].map((phase) => (
+                        <Card key={phase.label}>
+                          <CardBody className="p-4">
+                            <span className={`text-[10px] font-extrabold uppercase tracking-widest block mb-1 ${
+                              phase.color === 'emerald' ? 'text-emerald-600' : phase.color === 'indigo' ? 'text-indigo-600' : 'text-amber-600'
+                            }`}>{phase.label} — {phase.steps}</span>
+                            <p className="text-[11px] text-slate-500">{phase.desc}</p>
+                          </CardBody>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardBody className="p-6 space-y-4">
+                      <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-250">Lab Instructions & Guidelines</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{experiment.procedure}</p>
+                    </CardBody>
+                  </Card>
+                )
               )}
 
               {activeTab === 'activity' && ActivityComponent && (
@@ -282,27 +562,156 @@ export const ExperimentLayout = () => {
               )}
 
               {activeTab === 'report' && (
-                <Card>
-                  <CardBody className="p-6 text-center space-y-4">
-                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">Compile Laboratory Report</h3>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                      Upon completion of the interactive activity, you can compile and download your results as an official PDF lab sheet.
-                    </p>
-
-                    {submission?.status === 'submitted' ? (
-                      <ReportGenerator
-                        experimentTitle={experiment.title}
-                        studentName={user?.name}
-                        studentEmail={user?.email}
-                        activityData={submission.data}
-                      />
-                    ) : (
-                      <div className="p-4 border border-dashed rounded-xl text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-950/20 max-w-sm mx-auto">
-                        Please complete and submit the Simulation Activity first.
+                <div className="space-y-4">
+                  <Card>
+                    <CardBody className="p-6 space-y-4">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center shrink-0">
+                          <FileText size={18} className="text-indigo-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-extrabold text-base text-slate-800 dark:text-slate-100">SQA Laboratory Report</h3>
+                          <p className="text-xs text-slate-400 mt-0.5">Your CFG analysis, complexity metrics, and path coverage results — compiled as a downloadable PDF lab sheet.</p>
+                        </div>
                       </div>
-                    )}
-                  </CardBody>
-                </Card>
+
+                      {submission?.status === 'submitted' ? (
+                        <div className="space-y-5">
+                          {/* Report Preview */}
+                          <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                            {/* Preview Header */}
+                            <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">
+                              <span className="text-xs font-bold uppercase tracking-widest">Report Preview</span>
+                              <Badge variant="success" className="text-[10px]">Submitted</Badge>
+                            </div>
+
+                            <div className="p-5 bg-white dark:bg-slate-900/40 space-y-5">
+                              {/* Student Info */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                                {[
+                                  { label: 'Experiment', value: experiment.title },
+                                  { label: 'Student', value: user?.name },
+                                  { label: 'Email', value: user?.email },
+                                  { label: 'Date', value: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) }
+                                ].map((m) => (
+                                  <div key={m.label} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-0.5">{m.label}</span>
+                                    <span className="font-semibold text-slate-800 dark:text-slate-200 text-[11px]">{m.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* CFG Metrics */}
+                              {submission.data && (
+                                <>
+                                  <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">CFG Metrics — {submission.data.presetLabel}</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                      {[
+                                        { label: 'Nodes (N)', value: submission.data.nodes },
+                                        { label: 'Edges (E)', value: submission.data.edges },
+                                        { label: 'Predicates (P)', value: submission.data.predicateNodes },
+                                        { label: 'Regions', value: submission.data.complexity - 1 },
+                                        { label: 'V(G) = CC', value: submission.data.complexity, hi: true }
+                                      ].map((m) => (
+                                        <div key={m.label} className={`p-3 rounded-xl border text-center ${m.hi ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800'}`}>
+                                          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">{m.label}</span>
+                                          <span className={`text-xl font-extrabold ${m.hi ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{m.value ?? '—'}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Formula Verification */}
+                                  <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Formula Verification</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                                      {[
+                                        { name: 'V(G) = E – N + 2P', result: (submission.data.edges - submission.data.nodes + 2) },
+                                        { name: 'V(G) = P + 1', result: (submission.data.predicateNodes + 1) },
+                                        { name: 'V(G) = R + 1', result: submission.data.complexity }
+                                      ].map((f) => (
+                                        <div key={f.name} className="flex items-center justify-between p-2.5 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 rounded-xl">
+                                          <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">{f.name}</span>
+                                          <span className="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded-lg">= {f.result}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Basis Paths */}
+                                  {submission.data.log?.length > 0 && (
+                                    <div>
+                                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Basis Paths Exercised ({submission.data.log.length} / {submission.data.complexity})</p>
+                                      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                                        <table className="w-full text-xs">
+                                          <thead>
+                                            <tr className="bg-slate-50 dark:bg-slate-800/60">
+                                              <th className="px-3 py-2 text-left font-bold text-slate-500 uppercase text-[9px] tracking-widest">Path</th>
+                                              <th className="px-3 py-2 text-left font-bold text-slate-500 uppercase text-[9px] tracking-widest">Traversal</th>
+                                              <th className="px-3 py-2 text-left font-bold text-slate-500 uppercase text-[9px] tracking-widest">Description</th>
+                                              <th className="px-3 py-2 text-left font-bold text-slate-500 uppercase text-[9px] tracking-widest">Expected Output</th>
+                                              <th className="px-3 py-2 text-center font-bold text-slate-500 uppercase text-[9px] tracking-widest">Status</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {submission.data.log.map((entry, i) => (
+                                              <tr key={i} className="border-t border-slate-100 dark:border-slate-800">
+                                                <td className="px-3 py-2 font-mono font-bold text-indigo-600 dark:text-indigo-400">{entry.pathId}</td>
+                                                <td className="px-3 py-2 font-mono text-[10px] text-slate-600 dark:text-slate-300">{entry.pathLabel}</td>
+                                                <td className="px-3 py-2 text-[11px] text-slate-500">{entry.description}</td>
+                                                <td className="px-3 py-2 font-mono text-emerald-600 font-semibold">{String(entry.expected)}</td>
+                                                <td className="px-3 py-2 text-center">
+                                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+                                                    <CheckCircle2 size={12} /> Covered
+                                                  </span>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Coverage & Risk */}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                                      <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-1">Path Coverage</p>
+                                      <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-400">100%</p>
+                                      <p className="text-[11px] text-emerald-600 mt-0.5">All {submission.data.complexity} basis paths exercised</p>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
+                                      <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 mb-1">Risk Assessment</p>
+                                      <p className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400">{submission.data.complexity <= 10 ? 'Low Risk' : submission.data.complexity <= 20 ? 'Moderate Risk' : 'High Risk'}</p>
+                                      <p className="text-[11px] text-indigo-600 mt-0.5">V(G) = {submission.data.complexity}</p>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <ReportGenerator
+                            experimentTitle={experiment.title}
+                            studentName={user?.name}
+                            studentEmail={user?.email}
+                            activityData={submission.data}
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-center space-y-2">
+                          <FileText size={32} className="text-slate-300 dark:text-slate-600 mx-auto" />
+                          <p className="text-sm font-semibold text-slate-500">Report Not Yet Available</p>
+                          <p className="text-xs text-slate-400 max-w-xs mx-auto">Complete and submit the Simulation Activity first to unlock the full lab report with CFG metrics, basis paths, and coverage analysis.</p>
+                          <Button variant="secondary" className="mt-2 text-xs" onClick={() => setActiveTab('activity')}>
+                            Go to Simulation Activity
+                          </Button>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                </div>
               )}
             </>
           )}

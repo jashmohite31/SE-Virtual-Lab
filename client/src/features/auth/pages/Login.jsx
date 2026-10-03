@@ -12,6 +12,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
@@ -60,11 +61,27 @@ export const Login = () => {
 
               <Input
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 error={errors.password?.message}
                 {...register('password', { required: 'Password is required' })}
               />
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="show-password"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 cursor-pointer"
+                />
+                <label
+                  htmlFor="show-password"
+                  className="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+                >
+                  Show password
+                </label>
+              </div>
 
               <Button type="submit" variant="primary" className="w-full" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In'}
