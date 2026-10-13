@@ -45,7 +45,7 @@ Instructors and Administrators get dedicated dashboards to monitor real-time cla
 
 ## ✨ Key Features
 
-- 🧪 **12 Hands-on Virtual Laboratories**: Covering SDLC models, requirements engineering, system design, testing, project management, and version control.
+- 🧪 **6 Core Virtual Laboratories**: Curriculum-aligned software engineering experiments covering requirements engineering, system design, testing, version control, risk management, and project scheduling.
 - 👥 **Role-Based Access Control (RBAC)**: Distinct, tailored interfaces for **Students**, **Instructors / Teachers**, and **Administrators**.
 - 📝 **Automated Assessment Engine**: Multi-question experiment quizzes with instant feedback, randomized question banks, passing thresholds, and retry limits.
 - 📄 **Academic Report Generator**: Generate and download formatted PDF laboratory reports containing diagram exports, test inputs, and activity solutions using `jsPDF` and `html2canvas`.
@@ -58,20 +58,14 @@ Instructors and Administrators get dedicated dashboards to monitor real-time cla
 
 ## 🔬 Interactive Laboratories
 
-| # | Laboratory Experiment | Key Concepts Covered | Interactive Capabilities |
-|---|----------------------|----------------------|--------------------------|
-| **01** | **Process Models (SDLC)** | Waterfall, Spiral, Agile, RAD, V-Model | Process phase simulation, criteria selector, trade-off matrix |
-| **02** | **SRS Generator** | IEEE 830 Standards, FR & NFR Specifications | Archetype selection, drag-and-drop requirement builder, IEEE PDF export |
-| **03** | **Project Scheduling** | WBS, CPM / PERT, Gantt Charts | Task dependency mapper, critical path calculation, timeline adjustments |
-| **04** | **Cost Estimation** | COCOMO I / II, Function Point Analysis | Organic / Semidetached / Embedded mode effort, duration, staffing estimations |
-| **05** | **UML Modeling Lab** | Class Diagrams, Use Case Diagrams, OOP Relationships | Node canvas (React Flow), association/inheritance linking, JSON & image export |
-| **06** | **Data Flow Diagrams (DFD)** | Level 0 (Context) & Level 1 DFDs | Process bubble creation, data store connections, external entity flow checks |
-| **07** | **Activity & State Lab** | UML State Machine & Activity Diagrams | State transitions, decision diamonds, concurrent fork/join nodes |
-| **08** | **Risk Management** | Risk Assessment & Mitigation Strategies | 5x5 Likelihood vs. Impact matrix, exposure scoring, Avoid/Mitigate/Transfer plans |
-| **09** | **SCM & Git Simulator** | Git CLI, Commit DAG, Branching & Merging | Simulated CLI terminal, real-time visual commit tree, merge conflict resolution |
-| **10** | **White-Box Testing (SQA)** | Control Flow Graph (CFG), Cyclomatic Complexity | Code parser, $V(G) = E - N + 2P$ calculator, basis path coverage tests |
-| **11** | **UI Prototype & UAT** | Wireframing, User Acceptance Testing (UAT) | Interactive wireframe inspection, UAT test execution, feedback logging |
-| **12** | **Agile Scrum Board** | Sprint Planning, User Stories, Velocity | Drag-and-drop Kanban board (`@dnd-kit`), story points, burndown visualization |
+| # | Laboratory Experiment | Slug | Key Concepts Covered | Interactive Capabilities |
+|---|----------------------|------|----------------------|--------------------------|
+| **01** | **Software Requirements Specification (SRS)** | `srs-generator` | IEEE 830 Standard, Functional (FR) & Non-Functional (NFR) Requirements | Archetype selection, drag-and-drop requirement builder, validation checks, IEEE-compliant PDF export |
+| **02** | **Unified Modelling Language (UML)** | `uml-lab` | Class Diagrams, Use Case Diagrams, OOP Relationships | Interactive React Flow canvas, class/actor definition, connection rules & circular inheritance validator, JSON export |
+| **03** | **Software Quality Assurance (SQA)** | `white-box-testing` | White-Box Testing, Control Flow Graphs (CFG), Cyclomatic Complexity | Code parser, CFG node/edge mapper, $V(G) = E - N + 2P$ and $P + 1$ computation, test case path coverage analyzer |
+| **04** | **Software Configuration Management (SCM)** | `scm-git-simulator` | Version Control, Staging, Commits, Branching, Merging | Interactive simulated Git terminal, dynamic commit DAG graph, branching, conflict resolution editor |
+| **05** | **Risk Management** | `risk-management` | Risk Identification, Assessment, Exposure, Mitigation | Project scenario analysis, 5x5 Likelihood × Impact rating matrix, mitigation planning (Avoid, Mitigate, Transfer, Accept) |
+| **06** | **Project Management & Scheduling** | `project-scheduling` | Work Breakdown Structure (WBS), Task Dependencies, Critical Path | Dependency configuration, critical path identification, resource allocation, dynamic Gantt chart |
 
 ---
 
@@ -83,7 +77,7 @@ Instructors and Administrators get dedicated dashboards to monitor real-time cla
 +-------------------+--------------------+-------------------------------+
 |     Student       |      Teacher       |             Admin             |
 +-------------------+--------------------+-------------------------------+
-| • 12 Active Labs  | • Class Roster     | • User Role Management        |
+| • 6 Core Labs     | • Class Roster     | • User Role Management        |
 | • Quizzes & Tests | • Attendance Logs  | • Global Platform Health      |
 | • PDF Lab Reports | • Gradebook & Stats| • Experiment Configuration    |
 | • Certificates    | • Activity Review  | • System Security & Analytics |
@@ -129,7 +123,7 @@ SE-Virtual-Lab/
 │   │   │   ├── auth/           # Login, Register, Role checks
 │   │   │   ├── certificates/   # Certificate viewer & PDF builder
 │   │   │   ├── dashboard/      # Student, Teacher, & Admin dashboards
-│   │   │   ├── experiments/    # 12 Interactive laboratory activities
+│   │   │   ├── experiments/    # 6 Core laboratory activities
 │   │   │   └── leaderboard/    # Gamified student ranking
 │   │   ├── pages/              # Landing, 404, and public pages
 │   │   ├── routes/             # Protected & Role-guarded routing
